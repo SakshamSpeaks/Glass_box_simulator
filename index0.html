@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glass Box Simulator - Graph Algorithms</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+
+        .main-header {
+            background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+            border-bottom: 3px solid #1e88e5;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .main-header h1 span {
+            color: #1e88e5;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 100px);
+        }
+
+        .sidebar {
+            width: 200px;
+            background: #2c2c2c;
+            border-right: 2px solid #1e88e5;
+            padding: 20px 0;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar h3 {
+            color: #1e88e5;
+            padding: 0 20px 15px 20px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #444;
+            margin-bottom: 10px;
+        }
+
+        .algorithm-btn {
+            width: 100%;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            color: #b0b0b0;
+            text-align: left;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .algorithm-btn:hover {
+            background: #3a3a3a;
+            color: #ffffff;
+            border-left: 3px solid #1e88e5;
+        }
+
+        .algorithm-btn.active {
+            background: #1e88e5;
+            color: #ffffff;
+            border-left: 3px solid #ffffff;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .nav-tabs {
+            background: #2c2c2c;
+            border-bottom: 2px solid #444;
+            display: flex;
+            padding: 0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            color: #b0b0b0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab:hover {
+            background: #3a3a3a;
+            color: #ffffff;
+        }
+
+        .nav-tab.active {
+            background: #1a1a1a;
+            color: #1e88e5;
+            border-bottom: 3px solid #1e88e5;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #1a1a1a;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #1e88e5;
+            margin-bottom: 20px;
+            font-size: 28px;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #ffffff;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        p {
+            line-height: 1.8;
+            color: #c0c0c0;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            margin-left: 30px;
+            line-height: 2;
+            color: #c0c0c0;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+        }
+
+        .algorithm-box {
+            background: #2c2c2c;
+            border-left: 4px solid #1e88e5;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            font-size: 13px;
+            color: #00ff00;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            background: #1e88e5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .simulation-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 250px);
+        }
+
+        .canvas-section {
+            background: #2c2c2c;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-section h3 {
+            color: #1e88e5;
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+
+        canvas {
+            width: 100%;
+            flex: 1;
+            background: #1a1a1a;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        .controls-section {
+            background: #2c2c2c;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #444;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-group {
+            margin-bottom: 5px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e88e5;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            background: #1e88e5;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #1976d2;
+            box-shadow: 0 4px 12px rgba(30, 136, 229, 0.4);
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #444;
+            border-radius: 4px;
+            font-size: 13px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .info-box {
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        .info-box h4 {
+            color: #1e88e5;
+            margin-bottom: 10px;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #c0c0c0;
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #555;
+            flex-shrink: 0;
+        }
+
+        .display-box {
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 4px;
+            min-height: 60px;
+            border: 1px solid #444;
+            overflow: hidden;
+        }
+
+        .display-box h4 {
+            color: #1e88e5;
+            margin-bottom: 10px;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .items-container {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 2px;
+        }
+
+        .item-badge {
+            background: #1e88e5;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 11px;
+            white-space: nowrap;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .step-info {
+            background: #2c2c2c;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            border-left: 4px solid #1e88e5;
+            line-height: 1.4;
+            color: #c0c0c0;
+            word-wrap: break-word;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid #444;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e88e5;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e88e5;
+            border-radius: 5px;
+        }
+
+        .procedure-step {
+            background: #2c2c2c;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #1e88e5;
+            border-radius: 4px;
+        }
+
+        .procedure-step h4 {
+            color: #1e88e5;
+            margin-bottom: 10px;
+        }
+
+        /* MCQ Styles */
+        .mcq-container {
+            max-width: 900px;
+        }
+
+        .mcq-question {
+            background: #2c2c2c;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            border: 2px solid #444;
+            transition: all 0.3s;
+        }
+
+        .mcq-question h4 {
+            color: #1e88e5;
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .mcq-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .mcq-option {
+            background: #1a1a1a;
+            padding: 14px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #444;
+            color: #c0c0c0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .mcq-option:hover {
+            background: #3a3a3a;
+            border-color: #1e88e5;
+            transform: translateX(5px);
+        }
+
+        .mcq-option.selected {
+            background: #1e88e5;
+            color: #ffffff;
+            border-color: #1e88e5;
+            font-weight: 600;
+        }
+
+        .mcq-option.correct {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .mcq-option.incorrect {
+            background: #f44336;
+            border-color: #f44336;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .mcq-option strong {
+            margin-right: 8px;
+            color: inherit;
+        }
+
+        .submit-mcq {
+            margin-top: 30px;
+            background: #1e88e5;
+            padding: 15px 40px;
+            font-size: 16px;
+            max-width: 400px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .submit-mcq:hover {
+            background: #1976d2;
+        }
+
+        #mcqResult {
+            margin-top: 30px;
+        }
+
+        .mcq-explanation {
+            margin-top: 12px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <h1><span>GLASS BOX</span> SIMULATOR</h1>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <h3>Algorithms</h3>
+            <button class="algorithm-btn active" onclick="selectAlgorithm('bfs', event)">BFS</button>
+            <button class="algorithm-btn" onclick="selectAlgorithm('dfs', event)">DFS</button>
+            <button class="algorithm-btn" onclick="selectAlgorithm('dijkstra', event)">DIJKSTRA</button>
+            <button class="algorithm-btn" onclick="selectAlgorithm('astar', event)">A* STAR</button>
+        </div>
+
+        <div class="main-content">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('about', event)">About</button>
+                <button class="nav-tab" onclick="showTab('theory', event)">Theory</button>
+                <button class="nav-tab" onclick="showTab('procedure', event)">Procedure</button>
+                <button class="nav-tab" onclick="showTab('simulation', event)">Simulation</button>
+                <button class="nav-tab" onclick="showTab('mcq', event)">MCQ</button>
+            </div>
+
+            <div class="content-area" id="contentArea"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentAlgorithm = 'bfs';
+        let currentTab = 'about';
+        
+        let canvas, ctx;
+        let vertices = [];
+        let edges = [];
+        let source = null;
+        let queue = [];
+        let explored = 0;
+        let step = 0;
+        let history = [];
+        let historyIndex = -1;
+        let initialized = false;
+        let traversal = [];
+        let adjList = {};
+
+        const algorithmContent = {
+            bfs: {
+                about: `
+                    <h2>About BFS (Breadth-First Search)</h2>
+                    
+                    <p>Breadth-First Search (BFS) is one of the most fundamental graph traversal algorithms. It explores vertices in order of their distance from the source vertex, discovering all vertices at distance k before discovering any vertices at distance k+1.</p>
+                    
+                    <h3>Key Characteristics</h3>
+                    <ul>
+                        <li><strong>Data Structure:</strong> Uses a FIFO (First-In-First-Out) Queue</li>
+                        <li><strong>Exploration Strategy:</strong> Level-by-level traversal</li>
+                        <li><strong>Time Complexity:</strong> <span class="highlight">O(V + E)</span> where V = vertices, E = edges</li>
+                        <li><strong>Space Complexity:</strong> <span class="highlight">O(V)</span></li>
+                        <li><strong>Completeness:</strong> Always finds a solution if one exists</li>
+                        <li><strong>Optimality:</strong> Finds shortest path in unweighted graphs</li>
+                    </ul>
+                    
+                    <h3>Applications</h3>
+                    <ul>
+                        <li><strong>Shortest Path Finding:</strong> Finding shortest path in unweighted graphs</li>
+                        <li><strong>Web Crawling:</strong> Search engines use BFS to crawl web pages</li>
+                        <li><strong>Social Networks:</strong> Finding people within 'n' connections (LinkedIn, Facebook)</li>
+                        <li><strong>Broadcasting:</strong> Broadcasting in networks</li>
+                        <li><strong>GPS Navigation:</strong> Finding nearest locations</li>
+                        <li><strong>Peer-to-Peer Networks:</strong> Finding neighboring nodes</li>
+                        <li><strong>Garbage Collection:</strong> Cheney's algorithm uses BFS</li>
+                    </ul>
+                    
+                    <h3>Advantages</h3>
+                    <ul>
+                        <li>Guarantees shortest path in unweighted graphs</li>
+                        <li>Simple to implement and understand</li>
+                        <li>Complete - will find solution if exists</li>
+                        <li>Can be used to test graph properties (bipartiteness, connectivity)</li>
+                    </ul>
+                    
+                    <h3>Disadvantages</h3>
+                    <ul>
+                        <li>Requires more memory than DFS due to queue storage</li>
+                        <li>Not suitable for decision trees or game playing</li>
+                        <li>May explore irrelevant vertices in large graphs</li>
+                    </ul>
+                `,
+                theory: `
+                    <h2>BFS Theory</h2>
+                    
+                    <h3>Algorithm Description</h3>
+                    <p>BFS systematically explores the edges of a graph to discover every vertex reachable from a source vertex. It computes the distance (smallest number of edges) from the source to each reachable vertex.</p>
+                    
+                    <h3>Color Coding Scheme</h3>
+                    <p>BFS uses three colors to track vertex states:</p>
+                    <ul>
+                        <li><span class="highlight">WHITE</span>: Undiscovered vertices (not yet visited)</li>
+                        <li><span class="highlight">GRAY</span>: Discovered but not fully explored (in queue)</li>
+                        <li><span class="highlight">BLACK</span>: Fully explored (all neighbors discovered)</li>
+                    </ul>
+                    
+                    <h3>Data Structures</h3>
+                    <ul>
+                        <li><strong>color[u]:</strong> Color of vertex u</li>
+                        <li><strong>d[u]:</strong> Distance from source to vertex u</li>
+                        <li><strong>π[u]:</strong> Predecessor of u in BFS tree</li>
+                        <li><strong>Queue Q:</strong> FIFO queue managing gray vertices</li>
+                    </ul>
+                    
+                    <h3>BFS Pseudocode</h3>
+                    <div class="algorithm-box">
+BFS(G, s)
+1  for each vertex u ∈ V[G] − {s}
+2      color[u] ← WHITE
+3      d[u] ← ∞
+4      π[u] ← NIL
+5  color[s] ← GRAY
+6  d[s] ← 0
+7  π[s] ← NIL
+8  Q ← ∅
+9  ENQUEUE(Q, s)
+10 while Q ≠ ∅
+11     u ← DEQUEUE(Q)
+12     for each v ∈ Adj[u]
+13         if color[v] = WHITE
+14             color[v] ← GRAY
+15             d[v] ← d[u] + 1
+16             π[v] ← u
+17             ENQUEUE(Q, v)
+18     color[u] ← BLACK
+                    </div>
+                    
+                    <h3>How BFS Works</h3>
+                    <ul>
+                        <li><strong>Initialization (Lines 1-9):</strong> All vertices except source are colored WHITE with distance ∞. Source is colored GRAY with distance 0 and enqueued.</li>
+                        <li><strong>Main Loop (Lines 10-18):</strong> Dequeue vertex u, explore all WHITE neighbors, color them GRAY, update distances, enqueue them, then color u BLACK.</li>
+                        <li><strong>Termination:</strong> Algorithm terminates when queue is empty (all reachable vertices explored).</li>
+                    </ul>
+                    
+                    <h3>Properties of BFS</h3>
+                    <ul>
+                        <li>BFS discovers all vertices at distance k before discovering vertices at distance k+1</li>
+                        <li>The breadth-first tree contains all reachable vertices from source</li>
+                        <li>Path in BFS tree from source to any vertex is a shortest path</li>
+                        <li>For any edge (u,v), |d[u] - d[v]| ≤ 1</li>
+                    </ul>
+                    
+                    <h3>Time Complexity Analysis</h3>
+                    <p>After initialization, each vertex is enqueued at most once, and dequeued at most once. Since each adjacency list is scanned when its vertex is dequeued, and the sum of all adjacency list lengths is Θ(E), the total running time is <span class="highlight">O(V + E)</span>.</p>
+                `,
+                procedure: `
+                    <h2>Procedure to Perform BFS Simulation</h2>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 1: Understanding the Graph</h4>
+                        <p>The simulation displays an undirected graph with vertices labeled A through F. Each vertex can be in one of three states: WHITE (undiscovered), GRAY (discovered but not explored), or BLACK (fully explored).</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 2: Select Source Vertex</h4>
+                        <p>Click on the "Select Source" dropdown menu in the controls panel and choose any vertex (A, B, C, D, E, or F) as your starting point. This vertex will be marked as the source for the BFS traversal.</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 3: Initialize BFS</h4>
+                        <p>Click the "Next Step" button once. This will:</p>
+                        <ul>
+                            <li>Color the source vertex GRAY</li>
+                            <li>Set its distance to 0</li>
+                            <li>Add it to the queue</li>
+                            <li>Initialize all other vertices as WHITE with distance ∞</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 4: Execute BFS Step by Step</h4>
+                        <p>Continue clicking "Next Step" to advance through the algorithm:</p>
+                        <ul>
+                            <li><strong>Dequeue:</strong> The algorithm removes a vertex from the front of the queue</li>
+                            <li><strong>Explore:</strong> It examines all neighbors of the dequeued vertex</li>
+                            <li><strong>Discover:</strong> WHITE neighbors are colored GRAY and added to queue</li>
+                            <li><strong>Complete:</strong> The dequeued vertex is colored BLACK</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 5: Observe Key Information</h4>
+                        <p>While stepping through the algorithm, monitor:</p>
+                        <ul>
+                            <li><strong>Queue Display:</strong> Shows which vertices are waiting to be explored</li>
+                            <li><strong>Traversal Order:</strong> Shows the sequence in which vertices are discovered</li>
+                            <li><strong>Distance Labels:</strong> Each vertex shows its distance from the source (d=n)</li>
+                            <li><strong>Statistics:</strong> Track number of explored vertices and current step</li>
+                            <li><strong>Step Info:</strong> Provides detailed information about current operation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 6: Understanding the Output</h4>
+                        <p>When BFS completes:</p>
+                        <ul>
+                            <li>All reachable vertices will be colored BLACK</li>
+                            <li>Queue will be empty</li>
+                            <li>Each vertex displays its shortest distance from source</li>
+                            <li>Traversal order shows the level-by-level exploration sequence</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 7: Reset and Experiment</h4>
+                        <p>Click "Reset" to clear the simulation and try with:</p>
+                        <ul>
+                            <li>Different source vertices</li>
+                            <li>Observe how distances change</li>
+                            <li>Compare traversal orders</li>
+                            <li>Verify shortest path properties</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Tips for Learning</h3>
+                    <ul>
+                        <li>Try BFS from each vertex to understand different perspectives</li>
+                        <li>Verify that BFS explores level by level (all distance k before k+1)</li>
+                        <li>Notice how the queue maintains the frontier of discovered vertices</li>
+                        <li>Compare the distance values to verify shortest paths</li>
+                    </ul>
+                `
+            },
+            dfs: {
+                about: `
+                    <h2>About DFS (Depth-First Search)</h2>
+                    
+                    <p>Depth-First Search (DFS) is a fundamental graph traversal algorithm that explores as far as possible along each branch before backtracking. It searches "deeper" in the graph whenever possible.</p>
+                    
+                    <h3>Key Characteristics</h3>
+                    <ul>
+                        <li><strong>Data Structure:</strong> Uses a Stack (or recursion)</li>
+                        <li><strong>Exploration Strategy:</strong> Depth-first (go deep then backtrack)</li>
+                        <li><strong>Time Complexity:</strong> <span class="highlight">O(V + E)</span></li>
+                        <li><strong>Space Complexity:</strong> <span class="highlight">O(V)</span> for recursion stack</li>
+                        <li><strong>Completeness:</strong> Complete in finite spaces</li>
+                        <li><strong>Timestamps:</strong> Records discovery and finishing times</li>
+                    </ul>
+                    
+                    <h3>Applications</h3>
+                    <ul>
+                        <li><strong>Topological Sorting:</strong> Ordering tasks with dependencies</li>
+                        <li><strong>Cycle Detection:</strong> Finding cycles in directed/undirected graphs</li>
+                        <li><strong>Path Finding:</strong> Finding paths between vertices</li>
+                        <li><strong>Strongly Connected Components:</strong> Kosaraju's and Tarjan's algorithms</li>
+                        <li><strong>Maze Solving:</strong> Finding way through mazes</li>
+                        <li><strong>Puzzle Solving:</strong> Chess, Sudoku solvers</li>
+                        <li><strong>Web Crawling:</strong> Deep crawling of websites</li>
+                    </ul>
+                    
+                    <h3>Advantages</h3>
+                    <ul>
+                        <li>Memory efficient - requires less memory than BFS</li>
+                        <li>Useful for decision trees and game playing</li>
+                        <li>Natural recursive implementation</li>
+                        <li>Discovers back edges (useful for cycle detection)</li>
+                        <li>Can be terminated when goal is found</li>
+                    </ul>
+                    
+                    <h3>Disadvantages</h3>
+                    <ul>
+                        <li>May get stuck in infinite loops without cycle detection</li>
+                        <li>Not guaranteed to find shortest path</li>
+                        <li>May go very deep before finding solution</li>
+                        <li>Stack overflow risk in deep recursion</li>
+                    </ul>
+                `,
+                theory: `
+                    <h2>DFS Theory</h2>
+                    
+                    <h3>Algorithm Description</h3>
+                    <p>DFS explores edges out of the most recently discovered vertex that still has unexplored edges. When all edges from a vertex have been explored, the search backtracks to explore edges leaving the vertex from which it was discovered.</p>
+                    
+                    <h3>Color Coding Scheme</h3>
+                    <ul>
+                        <li><span class="highlight">WHITE</span>: Undiscovered vertex</li>
+                        <li><span class="highlight">GRAY</span>: Discovered but not finished (currently exploring)</li>
+                        <li><span class="highlight">BLACK</span>: Finished (all descendants discovered)</li>
+                    </ul>
+                    
+                    <h3>Timestamps</h3>
+                    <p>DFS maintains two timestamps for each vertex:</p>
+                    <ul>
+                        <li><strong>d[v]:</strong> Discovery time - when vertex v is first discovered (grayed)</li>
+                        <li><strong>f[v]:</strong> Finishing time - when search finishes examining v's adjacency list (blackened)</li>
+                        <li><strong>Property:</strong> For every vertex u, d[u] < f[u]</li>
+                        <li><strong>Interval:</strong> Vertex is WHITE before d[u], GRAY between d[u] and f[u], BLACK after f[u]</li>
+                    </ul>
+                    
+                    <h3>DFS Pseudocode</h3>
+                    <div class="algorithm-box">
+DFS(G)
+1  for each vertex u ∈ V[G]
+2      color[u] ← WHITE
+3      π[u] ← NIL
+4  time ← 0
+5  for each vertex u ∈ V[G]
+6      if color[u] = WHITE
+7          DFS-VISIT(u)
+
+DFS-VISIT(u)
+1  color[u] ← GRAY
+2  time ← time + 1
+3  d[u] ← time
+4  for each v ∈ Adj[u]
+5      if color[v] = WHITE
+6          π[v] ← u
+7          DFS-VISIT(v)
+8  color[u] ← BLACK
+9  f[u] ← time ← time + 1
+                    </div>
+                    
+                    <h3>How DFS Works</h3>
+                    <ul>
+                        <li><strong>Initialization:</strong> All vertices are colored WHITE</li>
+                        <li><strong>Visit:</strong> When visiting vertex u, color it GRAY and record discovery time</li>
+                        <li><strong>Explore:</strong> Recursively visit all WHITE neighbors</li>
+                        <li><strong>Finish:</strong> After exploring all neighbors, color u BLACK and record finishing time</li>
+                        <li><strong>Repeat:</strong> Continue with next WHITE vertex until all are BLACK</li>
+                    </ul>
+                    
+                    <h3>Properties of DFS</h3>
+                    <ul>
+                        <li><strong>Parenthesis Structure:</strong> Discovery and finishing times have proper nesting</li>
+                        <li><strong>Edge Classification:</strong> Tree edges, back edges, forward edges, cross edges</li>
+                        <li><strong>Depth-First Forest:</strong> May produce multiple trees</li>
+                        <li><strong>White Path Theorem:</strong> v is descendant of u iff at time d[u], there's a path from u to v consisting of WHITE vertices</li>
+                    </ul>
+                    
+                    <h3>Time Complexity Analysis</h3>
+                    <p>Each vertex is visited exactly once, and each edge is examined exactly twice (once from each endpoint). Therefore, the time complexity is <span class="highlight">O(V + E)</span>.</p>
+                `,
+                procedure: `
+                    <h2>Procedure to Perform DFS Simulation</h2>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 1: Understand the Graph</h4>
+                        <p>The simulation displays a graph where DFS will explore as deeply as possible along each branch before backtracking. Timestamps will be shown as "d/f" format.</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 2: Select Source Vertex</h4>
+                        <p>Choose a starting vertex from the dropdown menu. This will be the root of the first depth-first tree.</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 3: Initialize DFS</h4>
+                        <p>Click "Next Step" to initialize. The algorithm will:</p>
+                        <ul>
+                            <li>Set global time to 0</li>
+                            <li>Color all vertices WHITE</li>
+                            <li>Prepare to visit the source vertex</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 4: Observe Discovery Phase</h4>
+                        <p>When a vertex is discovered:</p>
+                        <ul>
+                            <li>It turns GRAY</li>
+                            <li>Time increments and is recorded as discovery time d[v]</li>
+                            <li>The vertex is added to the call stack</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 5: Watch Exploration</h4>
+                        <p>The algorithm explores each WHITE neighbor recursively:</p>
+                        <ul>
+                            <li>Selects a WHITE neighbor</li>
+                            <li>Recursively visits it (goes deeper)</li>
+                            <li>Backtracks when no WHITE neighbors remain</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 6: Observe Finishing Phase</h4>
+                        <p>When a vertex is finished:</p>
+                        <ul>
+                            <li>All its neighbors have been explored</li>
+                            <li>It turns BLACK</li>
+                            <li>Time increments and is recorded as finishing time f[v]</li>
+                            <li>It's removed from call stack (backtrack)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 7: Monitor Key Displays</h4>
+                        <ul>
+                            <li><strong>Call Stack:</strong> Shows current recursive call chain</li>
+                            <li><strong>Timestamps:</strong> Displayed as "d/f" on each vertex</li>
+                            <li><strong>Traversal Order:</strong> Shows discovery sequence</li>
+                            <li><strong>Time Counter:</strong> Global time value</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 8: Analyze Results</h4>
+                        <p>When DFS completes:</p>
+                        <ul>
+                            <li>All vertices are BLACK</li>
+                            <li>Each vertex shows both timestamps</li>
+                            <li>Verify parenthesis structure: d[u] < d[v] < f[v] < f[u] for tree edges</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Understanding Timestamps</h3>
+                    <ul>
+                        <li>If d[u] < d[v] < f[v] < f[u]: v is descendant of u</li>
+                        <li>If d[u] < f[u] < d[v] < f[v]: u and v are in separate subtrees</li>
+                        <li>Discovery and finishing times form a parenthesis structure</li>
+                    </ul>
+                `
+            },
+            dijkstra: {
+                about: `
+                    <h2>About Dijkstra's Algorithm</h2>
+                    
+                    <p>Dijkstra's algorithm is a greedy algorithm that solves the single-source shortest-paths problem on weighted, directed graphs where all edge weights are non-negative. Discovered by Edsger W. Dijkstra in 1956.</p>
+                    
+                    <h3>Key Characteristics</h3>
+                    <ul>
+                        <li><strong>Strategy:</strong> Greedy approach</li>
+                        <li><strong>Data Structure:</strong> Priority Queue (Min-Heap)</li>
+                        <li><strong>Graph Type:</strong> Weighted graphs with non-negative edges</li>
+                        <li><strong>Time Complexity:</strong> <span class="highlight">O((V + E) log V)</span> with binary heap</li>
+                        <li><strong>Space Complexity:</strong> <span class="highlight">O(V)</span></li>
+                        <li><strong>Optimality:</strong> Guaranteed to find shortest paths</li>
+                    </ul>
+                    
+                    <h3>Applications</h3>
+                    <ul>
+                        <li><strong>GPS Navigation:</strong> Finding shortest routes in road networks</li>
+                        <li><strong>Network Routing:</strong> OSPF, IS-IS protocols use Dijkstra's algorithm</li>
+                        <li><strong>Google Maps:</strong> Route optimization</li>
+                        <li><strong>Robotics:</strong> Path planning for autonomous robots</li>
+                        <li><strong>Airline Systems:</strong> Finding cheapest flight routes</li>
+                        <li><strong>Telephone Networks:</strong> Routing calls efficiently</li>
+                        <li><strong>Social Networks:</strong> Finding shortest connection paths</li>
+                    </ul>
+                    
+                    <h3>Advantages</h3>
+                    <ul>
+                        <li>Guaranteed optimal solution for non-negative weights</li>
+                        <li>Efficient with proper data structures</li>
+                        <li>Widely applicable to real-world problems</li>
+                        <li>Can be stopped once target is reached</li>
+                        <li>Works on both directed and undirected graphs</li>
+                    </ul>
+                    
+                    <h3>Disadvantages</h3>
+                    <ul>
+                        <li>Doesn't work with negative edge weights</li>
+                        <li>Can be slow on dense graphs</li>
+                        <li>Explores all directions equally (not goal-directed)</li>
+                        <li>Requires priority queue for efficiency</li>
+                    </ul>
+                `,
+                theory: `
+                    <h2>Dijkstra's Algorithm Theory</h2>
+                    
+                    <h3>Algorithm Overview</h3>
+                    <p>Dijkstra's algorithm maintains a set S of vertices whose final shortest-path weights have been determined. It repeatedly selects the vertex with minimum shortest-path estimate, adds it to S, and relaxes all edges leaving it.</p>
+                    
+                    <h3>Key Concepts</h3>
+                    <ul>
+                        <li><strong>Set S:</strong> Vertices with finalized shortest paths</li>
+                        <li><strong>Priority Queue Q:</strong> Vertices not in S, ordered by distance</li>
+                        <li><strong>d[v]:</strong> Current shortest-path estimate from source to v</li>
+                        <li><strong>π[v]:</strong> Predecessor of v in shortest path</li>
+                    </ul>
+                    
+                    <h3>Relaxation Operation</h3>
+                    <p>Edge relaxation is the process of updating the shortest-path estimate:</p>
+                    <div class="algorithm-box">
+RELAX(u, v, w)
+1  if d[v] > d[u] + w(u, v)
+2      d[v] ← d[u] + w(u, v)
+3      π[v] ← u
+                    </div>
+                    
+                    <h3>Dijkstra's Algorithm Pseudocode</h3>
+                    <div class="algorithm-box">
+DIJKSTRA(G, w, s)
+1  INITIALIZE-SINGLE-SOURCE(G, s)
+2  S ← ∅
+3  Q ← V[G]
+4  while Q ≠ ∅
+5      u ← EXTRACT-MIN(Q)
+6      S ← S ∪ {u}
+7      for each vertex v ∈ Adj[u]
+8          RELAX(u, v, w)
+
+INITIALIZE-SINGLE-SOURCE(G, s)
+1  for each vertex v ∈ V[G]
+2      d[v] ← ∞
+3      π[v] ← NIL
+4  d[s] ← 0
+                    </div>
+                    
+                    <h3>How Dijkstra Works</h3>
+                    <ul>
+                        <li><strong>Initialize:</strong> Set source distance to 0, all others to ∞</li>
+                        <li><strong>Extract-Min:</strong> Remove vertex with smallest distance from Q</li>
+                        <li><strong>Add to S:</strong> Add extracted vertex to set of finalized vertices</li>
+                        <li><strong>Relax:</strong> Update distances of all neighbors if shorter path found</li>
+                        <li><strong>Repeat:</strong> Continue until Q is empty</li>
+                    </ul>
+                    
+                    <h3>Greedy Choice Property</h3>
+                    <p>The algorithm makes the locally optimal choice at each step (selecting minimum distance vertex), which leads to a globally optimal solution.</p>
+                    
+                    <h3>Correctness Proof</h3>
+                    <p>Loop Invariant: At the start of each iteration, d[v] = δ(s, v) for all v ∈ S, where δ(s, v) is the actual shortest-path distance.</p>
+                    
+                    <h3>Time Complexity Analysis</h3>
+                    <ul>
+                        <li><strong>With Array:</strong> O(V²) - suitable for dense graphs</li>
+                        <li><strong>With Binary Heap:</strong> O((V + E) log V) - good for sparse graphs</li>
+                        <li><strong>With Fibonacci Heap:</strong> O(V log V + E) - theoretical best</li>
+                    </ul>
+                `,
+                procedure: `
+                    <h2>Procedure to Perform Dijkstra Simulation</h2>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 1: Understand the Weighted Graph</h4>
+                        <p>The graph displays vertices with weighted edges. Each edge has a positive number indicating its weight (cost/distance). The goal is to find shortest paths from source to all vertices.</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 2: Select Source Vertex</h4>
+                        <p>Choose a source vertex (typically 's') from the dropdown. This is the starting point from which shortest paths to all other vertices will be computed.</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 3: Initialize Algorithm</h4>
+                        <p>Click "Next Step" to initialize:</p>
+                        <ul>
+                            <li>Source vertex gets distance 0</li>
+                            <li>All other vertices get distance ∞</li>
+                            <li>All vertices are added to priority queue Q</li>
+                            <li>Set S (finalized vertices) starts empty</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 4: Extract Minimum Distance Vertex</h4>
+                        <p>Continue clicking "Next Step". The algorithm will:</p>
+                        <ul>
+                            <li>Extract vertex with minimum distance from Q</li>
+                            <li>Move it from Q to set S</li>
+                            <li>Vertex color changes to BLACK (finalized)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 5: Relax Adjacent Edges</h4>
+                        <p>For the extracted vertex u, the algorithm relaxes all outgoing edges:</p>
+                        <ul>
+                            <li>For each neighbor v of u</li>
+                            <li>Check if d[u] + weight(u,v) < d[v]</li>
+                            <li>If yes, update d[v] = d[u] + weight(u,v)</li>
+                            <li>Update v's position in priority queue</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 6: Monitor Key Information</h4>
+                        <p>While stepping through:</p>
+                        <ul>
+                            <li><strong>Priority Queue Q:</strong> Shows vertices awaiting processing with current distances</li>
+                            <li><strong>Set S:</strong> Shows finalized vertices with confirmed shortest distances</li>
+                            <li><strong>Distance Labels:</strong> Each vertex displays d=value</li>
+                            <li><strong>Step Info:</strong> Explains relaxation operations</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 7: Observe Relaxation Details</h4>
+                        <p>When distances are updated, the step info shows:</p>
+                        <ul>
+                            <li>Which vertex was extracted</li>
+                            <li>Which edges were relaxed</li>
+                            <li>New distance calculations: "v(old+weight=new)"</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 8: Verify Final Results</h4>
+                        <p>When algorithm completes:</p>
+                        <ul>
+                            <li>Priority queue Q is empty</li>
+                            <li>All vertices are in set S</li>
+                            <li>Each vertex shows its shortest distance from source</li>
+                            <li>All distances are optimal (no shorter path exists)</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Understanding Relaxation</h3>
+                    <p>Relaxation is the key operation:</p>
+                    <ul>
+                        <li>Tests whether going through u improves shortest path to v</li>
+                        <li>If d[u] + weight(u,v) < d[v], then update d[v]</li>
+                        <li>This is the "greedy" step - always taking the locally best choice</li>
+                    </ul>
+                    
+                    <h3>Experiment Ideas</h3>
+                    <ul>
+                        <li>Try different source vertices and compare results</li>
+                        <li>Observe how the greedy choice leads to optimal solution</li>
+                        <li>Track how priority queue maintains ordering</li>
+                        <li>Verify triangle inequality: d[v] ≤ d[u] + weight(u,v)</li>
+                    </ul>
+                `
+            },
+            astar: {
+                about: `
+                    <h2>About A* Search Algorithm</h2>
+                    
+                    <p>A* (pronounced "A-star") is an informed search algorithm that uses heuristics to efficiently find shortest paths. It combines the benefits of Dijkstra's algorithm with goal-directed search using heuristic functions. Developed by Peter Hart, Nils Nilsson, and Bertram Raphael in 1968.</p>
+                    
+                    <h3>Key Characteristics</h3>
+                    <ul>
+                        <li><strong>Strategy:</strong> Best-first search with heuristics</li>
+                        <li><strong>Evaluation Function:</strong> <span class="highlight">f(n) = g(n) + h(n)</span></li>
+                        <li><strong>Data Structures:</strong> Open list (priority queue) and Closed list</li>
+                        <li><strong>Graph Type:</strong> Weighted graphs</li>
+                        <li><strong>Optimality:</strong> Optimal if heuristic is admissible</li>
+                        <li><strong>Efficiency:</strong> More efficient than Dijkstra when good heuristic available</li>
+                    </ul>
+                    
+                    <h3>Applications</h3>
+                    <ul>
+                        <li><strong>Video Games:</strong> Pathfinding for NPCs and characters</li>
+                        <li><strong>Robotics:</strong> Navigation and motion planning</li>
+                        <li><strong>AI Planning:</strong> Finding optimal action sequences</li>
+                        <li><strong>Puzzle Solving:</strong> 15-puzzle, Rubik's cube, sliding puzzles</li>
+                        <li><strong>Route Planning:</strong> GPS with traffic and real-time conditions</li>
+                        <li><strong>Natural Language Processing:</strong> Parsing and speech recognition</li>
+                        <li><strong>Computer Vision:</strong> Image segmentation</li>
+                    </ul>
+                    
+                    <h3>Advantages</h3>
+                    <ul>
+                        <li>Optimal and complete with admissible heuristic</li>
+                        <li>More efficient than uninformed search</li>
+                        <li>Flexible - can use different heuristics</li>
+                        <li>Widely used in practice</li>
+                        <li>Guarantees shortest path with good heuristic</li>
+                    </ul>
+                    
+                    <h3>Disadvantages</h3>
+                    <ul>
+                        <li>Requires good heuristic function</li>
+                        <li>Can use significant memory</li>
+                        <li>Performance depends on heuristic quality</li>
+                        <li>May explore many nodes if heuristic is poor</li>
+                    </ul>
+                `,
+                theory: `
+                    <h2>A* Algorithm Theory</h2>
+                    
+                    <h3>Evaluation Function</h3>
+                    <p>A* uses the evaluation function:</p>
+                    <p><span class="highlight">f(n) = g(n) + h(n)</span></p>
+                    <ul>
+                        <li><strong>g(n):</strong> Actual cost from start node to node n</li>
+                        <li><strong>h(n):</strong> Heuristic estimate of cost from n to goal</li>
+                        <li><strong>f(n):</strong> Estimated total cost of path through n</li>
+                    </ul>
+                    
+                    <h3>Heuristic Functions</h3>
+                    <p>Common heuristics for grid-based pathfinding:</p>
+                    <ul>
+                        <li><strong>Euclidean Distance:</strong> h(n) = √((x₁-x₂)² + (y₁-y₂)²)</li>
+                        <li><strong>Manhattan Distance:</strong> h(n) = |x₁-x₂| + |y₁-y₂|</li>
+                        <li><strong>Chebyshev Distance:</strong> h(n) = max(|x₁-x₂|, |y₁-y₂|)</li>
+                        <li><strong>Octile Distance:</strong> Combines diagonal and straight moves</li>
+                    </ul>
+                    
+                    <h3>Admissibility and Consistency</h3>
+                    <ul>
+                        <li><strong>Admissible:</strong> h(n) never overestimates actual cost to goal</li>
+                        <li><strong>Consistent:</strong> h(n) ≤ c(n,n') + h(n') for every edge (n,n')</li>
+                        <li><strong>Result:</strong> If h is admissible and consistent, A* is optimal</li>
+                    </ul>
+                    
+                    <h3>A* Algorithm Pseudocode</h3>
+                    <div class="algorithm-box">
+A*(start, goal, h)
+1  openSet ← {start}
+2  closedSet ← ∅
+3  g[start] ← 0
+4  f[start] ← h(start)
+5  while openSet ≠ ∅
+6      current ← node in openSet with lowest f value
+7      if current = goal
+8          return reconstruct_path(current)
+9      remove current from openSet
+10     add current to closedSet
+11     for each neighbor of current
+12         if neighbor in closedSet
+13             continue
+14         tentative_g ← g[current] + distance(current, neighbor)
+15         if neighbor not in openSet
+16             add neighbor to openSet
+17         else if tentative_g ≥ g[neighbor]
+18             continue
+19         g[neighbor] ← tentative_g
+20         f[neighbor] ← g[neighbor] + h(neighbor)
+21         parent[neighbor] ← current
+                    </div>
+                    
+                    <h3>How A* Works</h3>
+                    <ul>
+                        <li><strong>Initialize:</strong> Add start to open list with f(start) = h(start)</li>
+                        <li><strong>Select:</strong> Choose node with lowest f value from open list</li>
+                        <li><strong>Goal Test:</strong> If it's the goal, reconstruct and return path</li>
+                        <li><strong>Expand:</strong> Move to closed list, examine neighbors</li>
+                        <li><strong>Update:</strong> For each neighbor, calculate g and f values</li>
+                        <li><strong>Repeat:</strong> Continue until goal found or open list empty</li>
+                    </ul>
+                    
+                    <h3>A* vs Dijkstra</h3>
+                    <ul>
+                        <li><strong>Dijkstra:</strong> A* with h(n) = 0 (explores all directions)</li>
+                        <li><strong>A*:</strong> Uses heuristic to focus search toward goal</li>
+                        <li><strong>Efficiency:</strong> A* explores fewer nodes with good heuristic</li>
+                        <li><strong>Optimality:</strong> Both optimal, but A* is faster</li>
+                    </ul>
+                    
+                    <h3>Properties</h3>
+                    <ul>
+                        <li><strong>Completeness:</strong> Always finds solution if one exists</li>
+                        <li><strong>Optimality:</strong> Finds optimal solution with admissible heuristic</li>
+                        <li><strong>Time:</strong> Exponential in worst case, but typically much faster</li>
+                        <li><strong>Space:</strong> Stores all generated nodes - can be memory intensive</li>
+                    </ul>
+                `,
+                procedure: `
+                    <h2>Procedure to Perform A* Simulation</h2>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 1: Understand the Setup</h4>
+                        <p>The graph shows weighted edges and heuristic values. Each vertex displays h(n) - the estimated distance to the goal. The algorithm will use both actual costs (g) and heuristic estimates (h) to find the optimal path.</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 2: Select Start and Goal</h4>
+                        <p>Choose two vertices:</p>
+                        <ul>
+                            <li><strong>Start Vertex:</strong> Where the search begins (e.g., 'S')</li>
+                            <li><strong>Goal Vertex:</strong> The target destination (e.g., 'G')</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 3: Initialize A*</h4>
+                        <p>Click "Next Step" to initialize:</p>
+                        <ul>
+                            <li>Start node: g=0, f=h(start), added to open list</li>
+                            <li>All other nodes: g=∞, f=∞</li>
+                            <li>Closed list starts empty</li>
+                            <li>Start node colored in open list color</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 4: Select Node with Lowest f</h4>
+                        <p>Continue clicking "Next Step". The algorithm:</p>
+                        <ul>
+                            <li>Selects node with minimum f(n) from open list</li>
+                            <li>Checks if it's the goal (if yes, done!)</li>
+                            <li>Moves it from open list to closed list</li>
+                            <li>Node turns to closed list color (purple)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 5: Expand Neighbors</h4>
+                        <p>For current node, examine each neighbor:</p>
+                        <ul>
+                            <li>Skip if already in closed list</li>
+                            <li>Calculate tentative_g = g(current) + edge_weight</li>
+                            <li>If neighbor not in open list, add it</li>
+                            <li>If tentative_g < g(neighbor), update:</li>
+                            <ul>
+                                <li>g(neighbor) = tentative_g</li>
+                                <li>f(neighbor) = g(neighbor) + h(neighbor)</li>
+                                <li>parent(neighbor) = current</li>
+                            </ul>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 6: Monitor Key Displays</h4>
+                        <ul>
+                            <li><strong>Open List:</strong> Nodes to be evaluated (yellow), shows f values</li>
+                            <li><strong>Closed List:</strong> Already evaluated nodes (purple), shows f values</li>
+                            <li><strong>Vertex Labels:</strong> Show h, f, and g values</li>
+                            <li><strong>Step Info:</strong> Details about current operation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 7: Understand Value Updates</h4>
+                        <p>On each vertex, observe:</p>
+                        <ul>
+                            <li><strong>h value:</strong> Static heuristic (doesn't change)</li>
+                            <li><strong>g value:</strong> Updates when better path found</li>
+                            <li><strong>f value:</strong> f = g + h (total estimate)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 8: Goal Reached</h4>
+                        <p>When algorithm finds the goal:</p>
+                        <ul>
+                            <li>Complete path is displayed</li>
+                            <li>Path format: Start → ... → Goal</li>
+                            <li>This is the optimal path</li>
+                            <li>Total cost is g(goal)</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Understanding the Heuristic</h3>
+                    <ul>
+                        <li><strong>h(n) = 0:</strong> A* becomes Dijkstra (explores all directions)</li>
+                        <li><strong>h(n) accurate:</strong> A* explores fewer nodes</li>
+                        <li><strong>h(n) admissible:</strong> A* guarantees optimal path</li>
+                        <li><strong>h(n) consistent:</strong> A* is even more efficient</li>
+                    </ul>
+                    
+                    <h3>Observing A* Efficiency</h3>
+                    <ul>
+                        <li>Compare number of explored nodes with Dijkstra</li>
+                        <li>Notice how A* focuses search toward goal</li>
+                        <li>Observe that open list prioritizes promising nodes</li>
+                        <li>Verify that final path is optimal</li>
+                    </ul>
+                    
+                    <h3>Experiment Ideas</h3>
+                    <ul>
+                        <li>Try different start-goal pairs</li>
+                        <li>Compare paths and exploration patterns</li>
+                        <li>Observe how heuristic guides the search</li>
+                        <li>Count nodes explored vs. total nodes</li>
+                    </ul>
+                `
+            }
+        };
+
+        function selectAlgorithm(algo, event) {
+            currentAlgorithm = algo;
+            
+            document.querySelectorAll('.algorithm-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadContent();
+        }
+
+        function showTab(tab, event) {
+            currentTab = tab;
+            
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadContent();
+        }
+
+        function loadContent() {
+            const contentArea = document.getElementById('contentArea');
+            
+            if (currentTab === 'simulation') {
+                loadSimulation();
+            } else if (currentTab === 'mcq') {
+                loadMCQ();
+            } else {
+                contentArea.innerHTML = `<div class="tab-content active">${algorithmContent[currentAlgorithm][currentTab]}</div>`;
+            }
+        }
+
+        // MCQ Data for all algorithms
+        const mcqData = {
+            bfs: [
+                {
+                    question: "What data structure does BFS use?",
+                    options: ["Stack", "Queue", "Priority Queue", "Linked List"],
+                    correct: 1,
+                    explanation: "BFS uses a FIFO Queue to maintain the order of vertices to be explored."
+                },
+                {
+                    question: "What is the time complexity of BFS?",
+                    options: ["O(V)", "O(E)", "O(V + E)", "O(V * E)"],
+                    correct: 2,
+                    explanation: "BFS visits each vertex once O(V) and explores each edge once O(E), giving O(V + E)."
+                },
+                {
+                    question: "In which order does BFS explore vertices?",
+                    options: ["Depth-first", "Level by level", "Random", "Alphabetical"],
+                    correct: 1,
+                    explanation: "BFS explores all vertices at distance k before exploring vertices at distance k+1."
+                },
+                {
+                    question: "What color represents an undiscovered vertex in BFS?",
+                    options: ["Gray", "Black", "White", "Red"],
+                    correct: 2,
+                    explanation: "WHITE represents undiscovered vertices in the BFS color scheme."
+                },
+                {
+                    question: "BFS guarantees shortest path in which type of graphs?",
+                    options: ["Weighted graphs", "Unweighted graphs", "Directed graphs only", "Cyclic graphs only"],
+                    correct: 1,
+                    explanation: "BFS finds shortest paths in unweighted graphs by exploring level by level."
+                },
+                {
+                    question: "What does a GRAY vertex represent in BFS?",
+                    options: ["Undiscovered", "Fully explored", "Discovered but not explored", "Starting vertex"],
+                    correct: 2,
+                    explanation: "GRAY vertices have been discovered but their neighbors haven't all been explored yet."
+                },
+                {
+                    question: "What is the space complexity of BFS?",
+                    options: ["O(1)", "O(V)", "O(E)", "O(V²)"],
+                    correct: 1,
+                    explanation: "BFS requires O(V) space for the queue and color array."
+                },
+                {
+                    question: "Which application is NOT suitable for BFS?",
+                    options: ["Finding shortest path", "Web crawling", "Topological sorting", "Social network analysis"],
+                    correct: 2,
+                    explanation: "Topological sorting requires DFS, not BFS. BFS is ideal for shortest paths and level-based exploration."
+                },
+                {
+                    question: "In BFS, what happens when a WHITE neighbor is found?",
+                    options: ["It is ignored", "It is colored BLACK", "It is colored GRAY and enqueued", "It is colored RED"],
+                    correct: 2,
+                    explanation: "When a WHITE neighbor is discovered, it's colored GRAY and added to the queue for future exploration."
+                },
+                {
+                    question: "What is the maximum number of vertices in the queue at any time during BFS?",
+                    options: ["1", "V", "E", "V + E"],
+                    correct: 1,
+                    explanation: "In the worst case, all vertices could be in the queue, so maximum is O(V)."
+                }
+            ],
+            dfs: [
+                {
+                    question: "DFS can be implemented using which data structure?",
+                    options: ["Queue only", "Stack or recursion", "Array only", "Heap only"],
+                    correct: 1,
+                    explanation: "DFS uses a stack (implicit via recursion or explicit) for backtracking."
+                },
+                {
+                    question: "What does d[v] represent in DFS?",
+                    options: ["Distance from source", "Discovery time", "Degree of vertex", "Depth of vertex"],
+                    correct: 1,
+                    explanation: "d[v] is the discovery time - when vertex v is first discovered."
+                },
+                {
+                    question: "What does f[v] represent in DFS?",
+                    options: ["Function value", "Final distance", "Finishing time", "First neighbor"],
+                    correct: 2,
+                    explanation: "f[v] is the finishing time - when all neighbors of v have been explored."
+                },
+                {
+                    question: "For any vertex u in DFS, which relationship is always true?",
+                    options: ["d[u] > f[u]", "d[u] = f[u]", "d[u] < f[u]", "d[u] ≥ f[u]"],
+                    correct: 2,
+                    explanation: "Discovery always happens before finishing, so d[u] < f[u] for all vertices."
+                },
+                {
+                    question: "DFS is particularly useful for which of the following?",
+                    options: ["Shortest path in weighted graphs", "Topological sorting", "Finding minimum spanning tree", "Level-order traversal"],
+                    correct: 1,
+                    explanation: "DFS is ideal for topological sorting, cycle detection, and finding strongly connected components."
+                },
+                {
+                    question: "What is the time complexity of DFS?",
+                    options: ["O(V)", "O(E)", "O(V + E)", "O(V²)"],
+                    correct: 2,
+                    explanation: "DFS visits each vertex once and explores each edge once, giving O(V + E)."
+                },
+                {
+                    question: "In DFS, what structure do discovery and finishing times have?",
+                    options: ["Linear", "Parenthesis (nested)", "Random", "Circular"],
+                    correct: 1,
+                    explanation: "DFS timestamps have parenthesis structure - properly nested intervals."
+                },
+                {
+                    question: "Which color indicates a vertex is currently being explored in DFS?",
+                    options: ["WHITE", "GRAY", "BLACK", "BLUE"],
+                    correct: 1,
+                    explanation: "GRAY indicates a vertex is discovered but not yet finished."
+                },
+                {
+                    question: "What edge type connects a vertex to its ancestor in DFS tree?",
+                    options: ["Tree edge", "Back edge", "Forward edge", "Cross edge"],
+                    correct: 1,
+                    explanation: "Back edges connect a vertex to its ancestor in the DFS tree."
+                },
+                {
+                    question: "DFS produces which structure?",
+                    options: ["Single tree", "Depth-first forest", "Breadth-first tree", "Minimum spanning tree"],
+                    correct: 1,
+                    explanation: "DFS may produce a forest (multiple trees) if the graph is disconnected."
+                }
+            ],
+            dijkstra: [
+                {
+                    question: "Dijkstra's algorithm works on graphs with which type of edge weights?",
+                    options: ["Any weights", "Negative weights only", "Non-negative weights", "No weights"],
+                    correct: 2,
+                    explanation: "Dijkstra requires non-negative edge weights to guarantee correctness."
+                },
+                {
+                    question: "What strategy does Dijkstra's algorithm use?",
+                    options: ["Divide and conquer", "Dynamic programming", "Greedy", "Backtracking"],
+                    correct: 2,
+                    explanation: "Dijkstra uses a greedy strategy - always selecting the vertex with minimum distance."
+                },
+                {
+                    question: "What does Set S represent in Dijkstra's algorithm?",
+                    options: ["Source vertices", "Vertices with finalized shortest paths", "Unvisited vertices", "All vertices"],
+                    correct: 1,
+                    explanation: "Set S contains vertices whose final shortest-path weights have been determined."
+                },
+                {
+                    question: "What is the time complexity with a binary heap?",
+                    options: ["O(V²)", "O(E log V)", "O((V+E) log V)", "O(V log E)"],
+                    correct: 2,
+                    explanation: "With binary heap, Dijkstra runs in O((V+E) log V) time."
+                },
+                {
+                    question: "What operation updates distances in Dijkstra's algorithm?",
+                    options: ["Extraction", "Insertion", "Relaxation", "Deletion"],
+                    correct: 2,
+                    explanation: "Edge relaxation checks if a shorter path exists and updates distances accordingly."
+                },
+                {
+                    question: "In the relaxation step, when is d[v] updated?",
+                    options: ["Always", "If d[v] < d[u] + w(u,v)", "If d[v] > d[u] + w(u,v)", "Never"],
+                    correct: 2,
+                    explanation: "Distance is updated if going through u provides a shorter path: d[v] > d[u] + w(u,v)."
+                },
+                {
+                    question: "What data structure is used for efficient minimum extraction?",
+                    options: ["Stack", "Queue", "Priority Queue", "Array"],
+                    correct: 2,
+                    explanation: "A priority queue (min-heap) efficiently extracts the vertex with minimum distance."
+                },
+                {
+                    question: "Dijkstra's algorithm is optimal for which problem?",
+                    options: ["Maximum flow", "Single-source shortest paths", "All-pairs shortest paths", "Minimum spanning tree"],
+                    correct: 1,
+                    explanation: "Dijkstra solves single-source shortest paths optimally for non-negative weights."
+                },
+                {
+                    question: "What happens when Dijkstra encounters a negative edge?",
+                    options: ["Works correctly", "May give incorrect results", "Stops execution", "Ignores the edge"],
+                    correct: 1,
+                    explanation: "Dijkstra may produce incorrect results with negative edges; use Bellman-Ford instead."
+                },
+                {
+                    question: "Which vertices are in the priority queue Q?",
+                    options: ["All vertices", "Vertices in S", "Vertices not in S (V - S)", "Only source"],
+                    correct: 2,
+                    explanation: "Queue Q contains vertices not yet in S (vertices whose shortest paths aren't finalized)."
+                }
+            ],
+            astar: [
+                {
+                    question: "What is the evaluation function in A*?",
+                    options: ["f(n) = g(n) - h(n)", "f(n) = g(n) + h(n)", "f(n) = g(n) * h(n)", "f(n) = h(n) / g(n)"],
+                    correct: 1,
+                    explanation: "A* uses f(n) = g(n) + h(n) where g is actual cost and h is heuristic estimate."
+                },
+                {
+                    question: "What does g(n) represent in A*?",
+                    options: ["Heuristic cost", "Total cost", "Actual cost from start to n", "Goal distance"],
+                    correct: 2,
+                    explanation: "g(n) is the actual cost of the path from start node to node n."
+                },
+                {
+                    question: "What does h(n) represent in A*?",
+                    options: ["Actual cost", "Heuristic estimate from n to goal", "Total cost", "Height of node"],
+                    correct: 1,
+                    explanation: "h(n) is the heuristic function estimating cost from n to the goal."
+                },
+                {
+                    question: "What property must a heuristic have to guarantee optimality?",
+                    options: ["Overestimates cost", "Admissible (never overestimates)", "Is always zero", "Is random"],
+                    correct: 1,
+                    explanation: "An admissible heuristic never overestimates the actual cost to reach the goal."
+                },
+                {
+                    question: "When is A* more efficient than Dijkstra?",
+                    options: ["Never", "When no heuristic available", "When good heuristic available", "Always"],
+                    correct: 2,
+                    explanation: "A* is more efficient when a good heuristic guides the search toward the goal."
+                },
+                {
+                    question: "What does the open list contain in A*?",
+                    options: ["Evaluated nodes", "Nodes to be evaluated", "Goal nodes", "Starting nodes"],
+                    correct: 1,
+                    explanation: "The open list contains nodes discovered but not yet evaluated."
+                },
+                {
+                    question: "What does the closed list contain in A*?",
+                    options: ["Unvisited nodes", "Nodes to visit", "Already evaluated nodes", "Heuristic values"],
+                    correct: 2,
+                    explanation: "The closed list contains nodes that have been fully evaluated."
+                },
+                {
+                    question: "What is Manhattan distance?",
+                    options: ["Straight line distance", "|x₁-x₂| + |y₁-y₂|", "√((x₁-x₂)² + (y₁-y₂)²)", "Maximum of differences"],
+                    correct: 1,
+                    explanation: "Manhattan distance is |x₁-x₂| + |y₁-y₂|, used for grid-based movement."
+                },
+                {
+                    question: "If h(n) = 0 for all n, what does A* become?",
+                    options: ["BFS", "DFS", "Dijkstra's algorithm", "Bellman-Ford"],
+                    correct: 2,
+                    explanation: "When h(n) = 0, A* becomes Dijkstra's algorithm (uniform cost search)."
+                },
+                {
+                    question: "What does a consistent heuristic guarantee?",
+                    options: ["Slow execution", "Optimal path with fewer node expansions", "Random paths", "Infinite loops"],
+                    correct: 1,
+                    explanation: "A consistent heuristic ensures optimality and that no node is re-expanded."
+                }
+            ]
+        };
+
+        let selectedAnswers = {};
+        let showingResults = false;
+
+        function loadMCQ() {
+            const contentArea = document.getElementById('contentArea');
+            const questions = mcqData[currentAlgorithm];
+            selectedAnswers = {};
+            showingResults = false;
+            
+            let html = `
+                <div class="tab-content active">
+                    <h2>Multiple Choice Questions - ${currentAlgorithm.toUpperCase()}</h2>
+                    <p style="margin-bottom: 25px;">Test your understanding of ${currentAlgorithm.toUpperCase()} with these interactive questions.</p>
+                    
+                    <div class="mcq-container">
+            `;
+            
+            questions.forEach((q, index) => {
+                html += `
+                    <div class="mcq-question" data-question="${index}">
+                        <h4>Question ${index + 1}: ${q.question}</h4>
+                        <div class="mcq-options">
+                `;
+                
+                q.options.forEach((option, optIndex) => {
+                    html += `
+                        <div class="mcq-option" onclick="selectOption(${index}, ${optIndex})" data-option="${optIndex}">
+                            <strong>${String.fromCharCode(65 + optIndex)}.</strong> ${option}
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                        <div class="mcq-explanation" id="explanation-${index}" style="display: none;"></div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                    <button class="submit-mcq" onclick="checkAnswers()">Submit All Answers</button>
+                    <div id="mcqResult"></div>
+                </div>
+            `;
+            
+            contentArea.innerHTML = html;
+        }
+
+        function selectOption(questionIndex, optionIndex) {
+            if (showingResults) return;
+            
+            selectedAnswers[questionIndex] = optionIndex;
+            
+            const question = document.querySelector(`[data-question="${questionIndex}"]`);
+            question.querySelectorAll('.mcq-option').forEach((opt, idx) => {
+                opt.classList.remove('selected');
+                if (idx === optionIndex) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        function checkAnswers() {
+            if (showingResults) return;
+            
+            const questions = mcqData[currentAlgorithm];
+            let correct = 0;
+            let attempted = Object.keys(selectedAnswers).length;
+            
+            questions.forEach((q, index) => {
+                const question = document.querySelector(`[data-question="${index}"]`);
+                const options = question.querySelectorAll('.mcq-option');
+                const explanationDiv = document.getElementById(`explanation-${index}`);
+                
+                options.forEach((opt, idx) => {
+                    opt.style.pointerEvents = 'none';
+                    opt.classList.remove('selected');
+                    
+                    if (idx === q.correct) {
+                        opt.classList.add('correct');
+                    } else if (idx === selectedAnswers[index]) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+                
+                if (selectedAnswers[index] === q.correct) {
+                    correct++;
+                }
+                
+                explanationDiv.innerHTML = `
+                    <div style="margin-top: 15px; padding: 12px; background: #2c2c2c; border-left: 4px solid ${selectedAnswers[index] === q.correct ? '#4caf50' : '#f44336'}; border-radius: 4px;">
+                        <strong style="color: #1e88e5;">Explanation:</strong><br>
+                        <span style="color: #c0c0c0;">${q.explanation}</span>
+                    </div>
+                `;
+                explanationDiv.style.display = 'block';
+            });
+            
+            const percentage = attempted > 0 ? (correct / questions.length * 100).toFixed(1) : 0;
+            const resultDiv = document.getElementById('mcqResult');
+            
+            let resultColor, resultText;
+            if (percentage >= 80) {
+                resultColor = '#4caf50';
+                resultText = 'Excellent!';
+            } else if (percentage >= 60) {
+                resultColor = '#ffc107';
+                resultText = 'Good Job!';
+            } else {
+                resultColor = '#f44336';
+                resultText = 'Keep Learning!';
+            }
+            
+            resultDiv.innerHTML = `
+                <div style="margin-top: 25px; padding: 20px; background: #2c2c2c; border-radius: 8px; text-align: center; border: 2px solid ${resultColor};">
+                    <h3 style="color: ${resultColor}; margin-bottom: 15px;">${resultText}</h3>
+                    <div style="font-size: 48px; font-weight: bold; color: ${resultColor}; margin: 15px 0;">${percentage}%</div>
+                    <p style="font-size: 18px; color: #c0c0c0;">
+                        You answered <strong style="color: #1e88e5;">${correct}</strong> out of <strong style="color: #1e88e5;">${questions.length}</strong> questions correctly
+                    </p>
+                    <p style="margin-top: 10px; color: #888;">
+                        ${attempted < questions.length ? `You attempted ${attempted} questions. ` : ''}
+                    </p>
+                    <button onclick="resetMCQ()" style="margin-top: 20px; max-width: 300px;">Try Again</button>
+                </div>
+            `;
+            
+            showingResults = true;
+        }
+
+        function resetMCQ() {
+            loadMCQ();
+        }
+
+        function loadSimulation() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="tab-content active">
+                    <h2>${currentAlgorithm.toUpperCase()} Simulation</h2>
+                    <div class="simulation-container">
+                        <div class="canvas-section">
+                            <h3>Graph Visualization</h3>
+                            <canvas id="graphCanvas"></canvas>
+                        </div>
+                        <div class="controls-section">
+                            <div class="control-group">
+                                <label>Select Source</label>
+                                <select id="sourceSelect">
+                                    <option value="">-- Select --</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Controls</label>
+                                <button onclick="nextStep()">Next Step</button>
+                                <button onclick="prevStep()" id="prevBtn" disabled>Previous Step</button>
+                                <button onclick="resetSim()">Reset</button>
+                            </div>
+                            <div class="info-box">
+                                <h4>Legend</h4>
+                                <div class="legend">
+                                    <div class="legend-item"><div class="legend-color" style="background: white;"></div><span>Undiscovered</span></div>
+                                    <div class="legend-item"><div class="legend-color" style="background: #ffd700;"></div><span>Discovered</span></div>
+                                    <div class="legend-item"><div class="legend-color" style="background: #333;"></div><span>Explored</span></div>
+                                </div>
+                            </div>
+                            <div class="display-box">
+                                <h4>Queue</h4>
+                                <div class="items-container" id="queueDisplay"><span style="color: #999;">Empty</span></div>
+                            </div>
+                            <div class="display-box">
+                                <h4>Traversal Order</h4>
+                                <div class="items-container" id="traversalDisplay"><span style="color: #999;">Not started</span></div>
+                            </div>
+                            <div class="stats">
+                                <div class="stat-item"><div class="stat-label">Explored</div><div class="stat-value" id="exploredCount">0</div></div>
+                                <div class="stat-item"><div class="stat-label">Step</div><div class="stat-value" id="stepCount">0</div></div>
+                            </div>
+                            <div class="step-info" id="stepInfo">Select a source vertex to begin</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                initSimulation();
+            }, 100);
+        }
+
+        class Vertex {
+            constructor(id, x, y) {
+                this.id = id;
+                this.x = x;
+                this.y = y;
+                this.color = 'WHITE';
+                this.distance = Infinity;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 25, 0, 2 * Math.PI);
+                
+                if (this.color === 'WHITE') {
+                    ctx.fillStyle = '#ffffff';
+                } else if (this.color === 'GRAY') {
+                    ctx.fillStyle = '#ffd700';
+                } else {
+                    ctx.fillStyle = '#333333';
+                }
+                
+                ctx.fill();
+                ctx.strokeStyle = '#1e88e5';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = this.color === 'BLACK' ? 'white' : 'black';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.id, this.x, this.y);
+
+                if (this.distance !== Infinity) {
+                    ctx.fillStyle = '#1e88e5';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.fillText(`d=${this.distance}`, this.x, this.y + 35);
+                }
+            }
+        }
+
+        class Edge {
+            constructor(v1, v2) {
+                this.v1 = v1;
+                this.v2 = v2;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.v1.x, this.v1.y);
+                ctx.lineTo(this.v2.x, this.v2.y);
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        function initSimulation() {
+            canvas = document.getElementById('graphCanvas');
+            if (!canvas) return;
+            
+            ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            createGraph();
+        }
+
+        function createGraph() {
+            vertices = [];
+            edges = [];
+            
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const r = Math.min(canvas.width, canvas.height) * 0.25;
+            
+            const positions = [
+                {id: 'A', x: cx, y: cy - r},
+                {id: 'B', x: cx - r * 0.7, y: cy - r * 0.5},
+                {id: 'C', x: cx + r * 0.7, y: cy - r * 0.5},
+                {id: 'D', x: cx - r, y: cy + r * 0.3},
+                {id: 'E', x: cx, y: cy + r * 0.3},
+                {id: 'F', x: cx + r, y: cy + r * 0.3}
+            ];
+
+            positions.forEach(p => vertices.push(new Vertex(p.id, p.x, p.y)));
+
+            const connections = [
+                ['A','B'],['A','C'],['B','D'],['B','E'],
+                ['C','E'],['C','F'],['D','E'],['E','F']
+            ];
+
+            connections.forEach(c => {
+                const v1 = vertices.find(v => v.id === c[0]);
+                const v2 = vertices.find(v => v.id === c[1]);
+                if (v1 && v2) edges.push(new Edge(v1, v2));
+            });
+
+            buildAdjList();
+            updateSourceSelect();
+            draw();
+        }
+
+        function buildAdjList() {
+            adjList = {};
+            vertices.forEach(v => adjList[v.id] = []);
+            edges.forEach(e => {
+                adjList[e.v1.id].push(e.v2);
+                adjList[e.v2.id].push(e.v1);
+            });
+        }
+
+        function draw() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            edges.forEach(e => e.draw());
+            vertices.forEach(v => v.draw());
+        }
+
+        function updateSourceSelect() {
+            const sel = document.getElementById('sourceSelect');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">-- Select Source --</option>';
+            vertices.forEach(v => {
+                sel.innerHTML += `<option value="${v.id}">Vertex ${v.id}</option>`;
+            });
+            sel.onchange = selectSource;
+        }
+
+        function selectSource() {
+            const sel = document.getElementById('sourceSelect');
+            const id = sel.value;
+            if (id) {
+                source = vertices.find(v => v.id === id);
+                resetSim();
+                draw();
+                updateInfo(`Source ${id} selected. Click Next Step to begin.`);
+            }
+        }
+
+        function nextStep() {
+            if (!initialized) {
+                if (!source) {
+                    alert('Please select a source vertex first!');
+                    return;
+                }
+                initBFS();
+                return;
+            }
+            
+            if (historyIndex < history.length - 1) {
+                restoreState(historyIndex + 1);
+                return;
+            }
+            
+            if (queue.length === 0) {
+                updateInfo('BFS Complete! Traversal order: ' + traversal.join(' → '));
+                return;
+            }
+
+            step++;
+            const u = queue.shift();
+            traversal.push(u.id);
+            
+            const adj = adjList[u.id];
+            let discovered = [];
+
+            adj.forEach(v => {
+                if (v.color === 'WHITE') {
+                    v.color = 'GRAY';
+                    v.distance = u.distance + 1;
+                    queue.push(v);
+                    discovered.push(v.id);
+                }
+            });
+
+            u.color = 'BLACK';
+            explored++;
+
+            if (discovered.length > 0) {
+                updateInfo(`Step ${step}: Explored ${u.id}, discovered: ${discovered.join(', ')}`);
+            } else {
+                updateInfo(`Step ${step}: Explored ${u.id}, no new neighbors`);
+            }
+            
+            saveState();
+            updateDisplay();
+        }
+
+        function prevStep() {
+            if (historyIndex > 0) {
+                restoreState(historyIndex - 1);
+            }
+        }
+
+        function saveState() {
+            const state = {
+                vertices: vertices.map(v => ({
+                    id: v.id,
+                    color: v.color,
+                    distance: v.distance
+                })),
+                queue: queue.map(v => v.id),
+                explored: explored,
+                step: step,
+                traversal: [...traversal]
+            };
+            
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            
+            history.push(state);
+            historyIndex = history.length - 1;
+            
+            updateButtons();
+        }
+
+        function restoreState(index) {
+            const state = history[index];
+            historyIndex = index;
+            
+            state.vertices.forEach(vs => {
+                const v = vertices.find(v => v.id === vs.id);
+                if (v) {
+                    v.color = vs.color;
+                    v.distance = vs.distance;
+                }
+            });
+            
+            queue = state.queue.map(id => vertices.find(v => v.id === id)).filter(v => v);
+            explored = state.explored;
+            step = state.step;
+            traversal = [...state.traversal];
+            
+            updateDisplay();
+            updateInfo(`Step ${step}`);
+            updateButtons();
+        }
+
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            if (prevBtn) {
+                prevBtn.disabled = (historyIndex <= 0);
+            }
+        }
+
+        function resetSim() {
+            initialized = false;
+            queue = [];
+            explored = 0;
+            step = 0;
+            traversal = [];
+            history = [];
+            historyIndex = -1;
+            
+            vertices.forEach(v => {
+                v.color = 'WHITE';
+                v.distance = Infinity;
+            });
+
+            updateDisplay();
+            draw();
+            updateInfo('Reset. Select source and click Next Step to begin.');
+            updateButtons();
+        }
+
+        function initBFS() {
+            vertices.forEach(v => {
+                v.color = 'WHITE';
+                v.distance = Infinity;
+            });
+
+            source.color = 'GRAY';
+            source.distance = 0;
+            queue = [source];
+            explored = 0;
+            step = 0;
+            traversal = [];
+            history = [];
+            historyIndex = -1;
+            initialized = true;
+
+            saveState();
+            updateDisplay();
+            updateInfo('BFS initialized. Click Next Step to continue.');
+        }
+
+        function updateDisplay() {
+            draw();
+            
+            const qDiv = document.getElementById('queueDisplay');
+            if (qDiv) {
+                if (queue.length === 0) {
+                    qDiv.innerHTML = '<span style="color: #999;">Empty</span>';
+                } else {
+                    qDiv.innerHTML = queue.map(v => 
+                        `<span class="item-badge">${v.id}</span>`
+                    ).join('');
+                }
+            }
+            
+            const tDiv = document.getElementById('traversalDisplay');
+            if (tDiv) {
+                if (traversal.length === 0) {
+                    tDiv.innerHTML = '<span style="color: #999;">Not started</span>';
+                } else {
+                    tDiv.innerHTML = traversal.map(id => 
+                        `<span class="item-badge">${id}</span>`
+                    ).join('');
+                }
+            }
+            
+            const eCount = document.getElementById('exploredCount');
+            const sCount = document.getElementById('stepCount');
+            if (eCount) eCount.textContent = explored;
+            if (sCount) sCount.textContent = step;
+        }
+
+        function updateInfo(msg) {
+            const info = document.getElementById('stepInfo');
+            if (info) info.textContent = msg;
+        }
+
+        window.onload = function() {
+            loadContent();
+        };
+    </script>
+</body>
+</html>
