@@ -333,6 +333,7 @@
             padding: 12px;
             border-radius: 4px;
             min-height: 60px;
+            max-height: 150px;
             border: 1px solid #444;
             overflow: hidden;
         }
@@ -350,9 +351,25 @@
             flex-wrap: wrap;
             align-items: flex-start;
             max-width: 100%;
-            overflow-x: auto;
-            overflow-y: visible;
+            overflow-x: hidden;
+            overflow-y: auto;
+            max-height: 100px;
             padding: 2px;
+        }
+
+        .items-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .items-container::-webkit-scrollbar-track {
+            background: #2c2c2c;
+            border-radius: 3px;
+        }
+
+        .items-container::-webkit-scrollbar-thumb {
+            background: #1e88e5;
+            border-radius: 3px;
         }
 
         .item-badge {
@@ -551,6 +568,8 @@
             <button class="algorithm-btn" onclick="selectAlgorithm('dfs', event)">DFS</button>
             <button class="algorithm-btn" onclick="selectAlgorithm('dijkstra', event)">DIJKSTRA</button>
             <button class="algorithm-btn" onclick="selectAlgorithm('astar', event)">A* STAR</button>
+            <button class="algorithm-btn" onclick="selectAlgorithm('prim', event)">PRIM'S</button>
+            <button class="algorithm-btn" onclick="selectAlgorithm('kruskal', event)">KRUSKAL'S</button>
         </div>
 
         <div class="main-content">
@@ -574,6 +593,7 @@
         let vertices = [];
         let edges = [];
         let source = null;
+        let goal = null;  // For A* algorithm
         let queue = [];
         let explored = 0;
         let step = 0;
@@ -1394,11 +1414,473 @@ A*(start, goal, h)
                         <li>Count nodes explored vs. total nodes</li>
                     </ul>
                 `
+            },
+            prim: {
+                about: `
+                    <h2>About Prim's Algorithm</h2>
+                    
+                    <p>Prim's algorithm is a greedy algorithm that finds a Minimum Spanning Tree (MST) for a weighted undirected graph. It builds the MST by growing a single tree, starting from an arbitrary vertex and repeatedly adding the cheapest edge that connects a vertex in the tree to a vertex outside the tree.</p>
+                    
+                    <h3>Key Characteristics</h3>
+                    <ul>
+                        <li><strong>Purpose:</strong> Finds Minimum Spanning Tree</li>
+                        <li><strong>Strategy:</strong> Greedy approach (similar to Dijkstra)</li>
+                        <li><strong>Data Structure:</strong> Priority Queue (Min-Heap)</li>
+                        <li><strong>Graph Type:</strong> Weighted, undirected, connected graphs</li>
+                        <li><strong>Time Complexity:</strong> <span class="highlight">O((V + E) log V)</span> with binary heap</li>
+                        <li><strong>Space Complexity:</strong> <span class="highlight">O(V)</span></li>
+                    </ul>
+                    
+                    <h3>What is a Spanning Tree?</h3>
+                    <ul>
+                        <li>A subgraph that includes all vertices</li>
+                        <li>Is a tree (connected and acyclic)</li>
+                        <li>Has exactly V-1 edges for V vertices</li>
+                    </ul>
+                    
+                    <h3>What is a Minimum Spanning Tree (MST)?</h3>
+                    <ul>
+                        <li>A spanning tree with minimum total edge weight</li>
+                        <li>May not be unique (multiple MSTs possible)</li>
+                        <li>Used to minimize connection costs</li>
+                    </ul>
+                    
+                    <h3>Applications</h3>
+                    <ul>
+                        <li><strong>Network Design:</strong> Designing least-cost networks (telecommunications, electrical grids)</li>
+                        <li><strong>Cluster Analysis:</strong> Single-linkage clustering in data mining</li>
+                        <li><strong>Approximation Algorithms:</strong> Traveling Salesman Problem approximation</li>
+                        <li><strong>Image Segmentation:</strong> Computer vision applications</li>
+                        <li><strong>Handwriting Recognition:</strong> Feature extraction</li>
+                        <li><strong>Routing Protocols:</strong> Network routing optimization</li>
+                    </ul>
+                    
+                    <h3>Advantages</h3>
+                    <ul>
+                        <li>Simple and easy to implement</li>
+                        <li>Works well on dense graphs</li>
+                        <li>Efficient with proper data structures</li>
+                        <li>Finds optimal MST</li>
+                        <li>Can start from any vertex</li>
+                    </ul>
+                    
+                    <h3>Disadvantages</h3>
+                    <ul>
+                        <li>Requires connected graph</li>
+                        <li>Slower than Kruskal on sparse graphs</li>
+                        <li>Requires priority queue for efficiency</li>
+                    </ul>
+                `,
+                theory: `
+                    <h2>Prim's Algorithm Theory</h2>
+                    
+                    <h3>Algorithm Overview</h3>
+                    <p>Prim's algorithm grows the MST by starting with an arbitrary vertex and repeatedly adding the minimum-weight edge that connects a vertex in the MST to a vertex outside it.</p>
+                    
+                    <h3>Key Concepts</h3>
+                    <ul>
+                        <li><strong>MST Set:</strong> Vertices already included in the MST</li>
+                        <li><strong>Priority Queue:</strong> Vertices not yet in MST, ordered by key value</li>
+                        <li><strong>key[v]:</strong> Minimum weight edge connecting v to MST</li>
+                        <li><strong>parent[v]:</strong> Parent of v in the MST</li>
+                    </ul>
+                    
+                    <h3>Greedy Choice Property</h3>
+                    <p>At each step, Prim's algorithm makes the locally optimal choice (minimum weight edge to grow the tree), which leads to a globally optimal solution (minimum spanning tree).</p>
+                    
+                    <h3>Prim's Algorithm Pseudocode</h3>
+                    <div class="algorithm-box">
+PRIM(G, w, r)
+1  for each u ∈ V[G]
+2      key[u] ← ∞
+3      parent[u] ← NIL
+4  key[r] ← 0
+5  Q ← V[G]
+6  while Q ≠ ∅
+7      u ← EXTRACT-MIN(Q)
+8      for each v ∈ Adj[u]
+9          if v ∈ Q and w(u, v) < key[v]
+10             parent[v] ← u
+11             key[v] ← w(u, v)
+                    </div>
+                    
+                    <h3>How Prim's Works</h3>
+                    <ul>
+                        <li><strong>Initialize:</strong> Set all keys to ∞, start vertex key to 0</li>
+                        <li><strong>Extract-Min:</strong> Remove vertex with minimum key from priority queue</li>
+                        <li><strong>Update Keys:</strong> For each adjacent vertex still in queue, update key if edge weight is smaller</li>
+                        <li><strong>Update Parent:</strong> Track parent to reconstruct MST</li>
+                        <li><strong>Repeat:</strong> Continue until all vertices processed</li>
+                    </ul>
+                    
+                    <h3>Similarity to Dijkstra's Algorithm</h3>
+                    <ul>
+                        <li>Both use priority queue and greedy approach</li>
+                        <li><strong>Dijkstra:</strong> key[v] = distance from source to v</li>
+                        <li><strong>Prim:</strong> key[v] = minimum edge weight connecting v to MST</li>
+                    </ul>
+                    
+                    <h3>Correctness</h3>
+                    <p>Prim's algorithm is correct because:</p>
+                    <ul>
+                        <li>The MST property: A safe edge can always be added to grow the MST</li>
+                        <li>Prim's always chooses a safe edge (minimum weight crossing the cut)</li>
+                        <li>The greedy choice leads to an optimal solution</li>
+                    </ul>
+                    
+                    <h3>Time Complexity Analysis</h3>
+                    <ul>
+                        <li><strong>With Binary Heap:</strong> O((V + E) log V)</li>
+                        <li><strong>With Fibonacci Heap:</strong> O(E + V log V)</li>
+                        <li><strong>With Array:</strong> O(V²) - good for dense graphs</li>
+                    </ul>
+                    
+                    <h3>MST Properties</h3>
+                    <ul>
+                        <li>Has exactly V-1 edges</li>
+                        <li>Removing any edge disconnects the tree</li>
+                        <li>Adding any edge creates exactly one cycle</li>
+                        <li>Total weight is minimum among all spanning trees</li>
+                    </ul>
+                `,
+                procedure: `
+                    <h2>Procedure to Perform Prim's Algorithm Simulation</h2>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 1: Understand the Graph</h4>
+                        <p>The weighted, undirected graph displays vertices and edges with weights. The goal is to find a subset of edges that connects all vertices with minimum total weight.</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 2: Select Starting Vertex</h4>
+                        <p>Choose any vertex as the starting point. Prim's algorithm can start from any vertex and will produce the same total MST weight (though the tree structure may differ).</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 3: Initialize Algorithm</h4>
+                        <p>Click "Next Step" to initialize:</p>
+                        <ul>
+                            <li>Starting vertex gets key = 0</li>
+                            <li>All other vertices get key = ∞</li>
+                            <li>All vertices added to priority queue</li>
+                            <li>MST set starts empty</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 4: Extract Minimum Key Vertex</h4>
+                        <p>Continue clicking "Next Step":</p>
+                        <ul>
+                            <li>Extract vertex with minimum key from queue</li>
+                            <li>Add it to the MST set</li>
+                            <li>The edge connecting it (shown by parent) is part of MST</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 5: Update Adjacent Keys</h4>
+                        <p>For the extracted vertex:</p>
+                        <ul>
+                            <li>Check all adjacent vertices still in queue</li>
+                            <li>If edge weight < current key, update key</li>
+                            <li>Update parent to track MST edges</li>
+                            <li>Priority queue automatically reorders</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 6: Observe MST Growth</h4>
+                        <p>Watch the MST grow:</p>
+                        <ul>
+                            <li><strong>MST Edges:</strong> Highlighted in green or bold</li>
+                            <li><strong>Key Values:</strong> Shown on vertices</li>
+                            <li><strong>Current MST Weight:</strong> Running total displayed</li>
+                            <li><strong>Vertices in MST:</strong> Colored differently</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 7: Verify Completion</h4>
+                        <p>When algorithm completes:</p>
+                        <ul>
+                            <li>All vertices are in MST set</li>
+                            <li>Exactly V-1 edges selected</li>
+                            <li>Total MST weight is displayed</li>
+                            <li>Tree connects all vertices with minimum cost</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Understanding the Process</h3>
+                    <ul>
+                        <li><strong>Greedy Choice:</strong> Always pick minimum weight edge to grow tree</li>
+                        <li><strong>Cut Property:</strong> Minimum edge crossing cut is safe to add</li>
+                        <li><strong>Key Updates:</strong> Keep track of cheapest connection for each vertex</li>
+                    </ul>
+                    
+                    <h3>Experiment Ideas</h3>
+                    <ul>
+                        <li>Start from different vertices - observe same total weight</li>
+                        <li>Count edges - verify exactly V-1 edges selected</li>
+                        <li>Compare with Kruskal's algorithm on same graph</li>
+                        <li>Try graphs with equal-weight edges - multiple MSTs possible</li>
+                    </ul>
+                `
+            },
+            kruskal: {
+                about: `
+                    <h2>About Kruskal's Algorithm</h2>
+                    
+                    <p>Kruskal's algorithm is a greedy algorithm that finds a Minimum Spanning Tree (MST) by sorting all edges by weight and adding them one by one, skipping edges that would create cycles. It uses the Union-Find data structure to efficiently detect cycles.</p>
+                    
+                    <h3>Key Characteristics</h3>
+                    <ul>
+                        <li><strong>Purpose:</strong> Finds Minimum Spanning Tree</li>
+                        <li><strong>Strategy:</strong> Greedy edge-based approach</li>
+                        <li><strong>Data Structure:</strong> Union-Find (Disjoint Set Union)</li>
+                        <li><strong>Graph Type:</strong> Weighted, undirected graphs (works on disconnected graphs)</li>
+                        <li><strong>Time Complexity:</strong> <span class="highlight">O(E log E)</span> or O(E log V)</li>
+                        <li><strong>Space Complexity:</strong> <span class="highlight">O(V)</span></li>
+                    </ul>
+                    
+                    <h3>Key Difference from Prim's</h3>
+                    <ul>
+                        <li><strong>Prim's:</strong> Grows single tree, vertex-based</li>
+                        <li><strong>Kruskal's:</strong> Builds forest of trees, edge-based</li>
+                        <li><strong>Prim's:</strong> Better for dense graphs</li>
+                        <li><strong>Kruskal's:</strong> Better for sparse graphs</li>
+                    </ul>
+                    
+                    <h3>Applications</h3>
+                    <ul>
+                        <li><strong>Network Design:</strong> Minimum cost cable/pipe networks</li>
+                        <li><strong>Cluster Analysis:</strong> Hierarchical clustering</li>
+                        <li><strong>Image Processing:</strong> Segmentation algorithms</li>
+                        <li><strong>Circuit Design:</strong> Minimizing wire length in VLSI</li>
+                        <li><strong>Transportation:</strong> Minimum cost road networks</li>
+                        <li><strong>Approximation:</strong> TSP and Steiner tree approximations</li>
+                    </ul>
+                    
+                    <h3>Advantages</h3>
+                    <ul>
+                        <li>Simple conceptual understanding</li>
+                        <li>Works on disconnected graphs (creates forest)</li>
+                        <li>Efficient for sparse graphs</li>
+                        <li>Easy to implement with Union-Find</li>
+                        <li>Finds optimal MST</li>
+                    </ul>
+                    
+                    <h3>Disadvantages</h3>
+                    <ul>
+                        <li>Requires sorting all edges first</li>
+                        <li>Slower than Prim's on dense graphs</li>
+                        <li>Need efficient Union-Find implementation</li>
+                    </ul>
+                `,
+                theory: `
+                    <h2>Kruskal's Algorithm Theory</h2>
+                    
+                    <h3>Algorithm Overview</h3>
+                    <p>Kruskal's algorithm builds the MST by considering edges in ascending order of weight and adding them if they don't create a cycle. It uses Union-Find to efficiently detect cycles.</p>
+                    
+                    <h3>Union-Find Data Structure</h3>
+                    <p>Also called Disjoint Set Union (DSU), this data structure maintains a collection of disjoint sets and supports two operations:</p>
+                    <ul>
+                        <li><strong>Find(x):</strong> Returns the representative (root) of the set containing x</li>
+                        <li><strong>Union(x, y):</strong> Merges the sets containing x and y</li>
+                    </ul>
+                    
+                    <h3>Union-Find Optimizations</h3>
+                    <ul>
+                        <li><strong>Path Compression:</strong> Make nodes point directly to root during Find</li>
+                        <li><strong>Union by Rank:</strong> Attach smaller tree under larger tree</li>
+                        <li><strong>Result:</strong> Nearly O(1) amortized time per operation</li>
+                    </ul>
+                    
+                    <h3>Kruskal's Algorithm Pseudocode</h3>
+                    <div class="algorithm-box">
+KRUSKAL(G, w)
+1  A ← ∅
+2  for each vertex v ∈ V[G]
+3      MAKE-SET(v)
+4  sort edges of E by weight w
+5  for each edge (u, v) ∈ E (in sorted order)
+6      if FIND-SET(u) ≠ FIND-SET(v)
+7          A ← A ∪ {(u, v)}
+8          UNION(u, v)
+9  return A
+
+MAKE-SET(x)
+1  parent[x] ← x
+2  rank[x] ← 0
+
+FIND-SET(x)
+1  if x ≠ parent[x]
+2      parent[x] ← FIND-SET(parent[x])
+3  return parent[x]
+
+UNION(x, y)
+1  xRoot ← FIND-SET(x)
+2  yRoot ← FIND-SET(y)
+3  if rank[xRoot] < rank[yRoot]
+4      parent[xRoot] ← yRoot
+5  else if rank[xRoot] > rank[yRoot]
+6      parent[yRoot] ← xRoot
+7  else
+8      parent[yRoot] ← xRoot
+9      rank[xRoot] ← rank[xRoot] + 1
+                    </div>
+                    
+                    <h3>How Kruskal's Works</h3>
+                    <ul>
+                        <li><strong>Initialize:</strong> Create singleton set for each vertex</li>
+                        <li><strong>Sort Edges:</strong> Order all edges by increasing weight</li>
+                        <li><strong>Process Edges:</strong> Consider each edge in sorted order</li>
+                        <li><strong>Cycle Check:</strong> Use Find to check if endpoints in same set</li>
+                        <li><strong>Add Edge:</strong> If no cycle, add edge and Union the sets</li>
+                        <li><strong>Terminate:</strong> Stop when V-1 edges added (or all edges processed)</li>
+                    </ul>
+                    
+                    <h3>Correctness</h3>
+                    <p>Kruskal's algorithm is correct because:</p>
+                    <ul>
+                        <li>It follows the MST property: safe edges can be added</li>
+                        <li>Minimum weight edge that doesn't create cycle is always safe</li>
+                        <li>Greedy choice property holds for MST problem</li>
+                        <li>Union-Find correctly detects cycles</li>
+                    </ul>
+                    
+                    <h3>Time Complexity Analysis</h3>
+                    <ul>
+                        <li><strong>Sorting:</strong> O(E log E)</li>
+                        <li><strong>Union-Find Operations:</strong> O(E α(V)) ≈ O(E)</li>
+                        <li><strong>Total:</strong> O(E log E) dominated by sorting</li>
+                        <li><strong>Since E ≤ V²:</strong> log E = O(log V), so O(E log V)</li>
+                    </ul>
+                    
+                    <h3>Cycle Detection</h3>
+                    <p>An edge (u, v) creates a cycle if:</p>
+                    <ul>
+                        <li>Both u and v are already in the same component (same set)</li>
+                        <li>FIND-SET(u) = FIND-SET(v)</li>
+                        <li>Adding edge would create a cycle in that component</li>
+                    </ul>
+                    
+                    <h3>Forest Evolution</h3>
+                    <ul>
+                        <li>Initially: V trees (each vertex is a tree)</li>
+                        <li>Each edge addition: Merges two trees into one</li>
+                        <li>After V-1 edges: Single tree (if graph connected)</li>
+                        <li>If disconnected: Forest with multiple trees</li>
+                    </ul>
+                `,
+                procedure: `
+                    <h2>Procedure to Perform Kruskal's Algorithm Simulation</h2>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 1: Understand the Edge-Based Approach</h4>
+                        <p>Unlike Prim's which grows a tree, Kruskal's considers edges globally. The graph shows all edges with their weights. The algorithm will process them from smallest to largest.</p>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 2: Initialize Union-Find</h4>
+                        <p>Click "Next Step" to start:</p>
+                        <ul>
+                            <li>Each vertex starts in its own set (singleton)</li>
+                            <li>Edges are sorted by weight (shown in sorted order)</li>
+                            <li>MST edge set A starts empty</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 3: Process Edges in Order</h4>
+                        <p>Continue clicking "Next Step":</p>
+                        <ul>
+                            <li>Current edge being considered is highlighted</li>
+                            <li>Edge weight is displayed</li>
+                            <li>Endpoints are checked for cycle</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 4: Cycle Detection with Find</h4>
+                        <p>For each edge (u, v):</p>
+                        <ul>
+                            <li>Find the set representative of u</li>
+                            <li>Find the set representative of v</li>
+                            <li>If same representative: Edge would create cycle → Skip</li>
+                            <li>If different: Edge is safe → Add to MST</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 5: Union Operation</h4>
+                        <p>When edge is added:</p>
+                        <ul>
+                            <li>The two sets are merged (Union operation)</li>
+                            <li>Edge is added to MST (shown in green/bold)</li>
+                            <li>MST weight increases by edge weight</li>
+                            <li>Component count decreases by 1</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 6: Monitor Key Information</h4>
+                        <p>Observe during execution:</p>
+                        <ul>
+                            <li><strong>Sorted Edge List:</strong> All edges in order</li>
+                            <li><strong>Current Edge:</strong> Edge being processed</li>
+                            <li><strong>MST Edges:</strong> Edges accepted so far</li>
+                            <li><strong>Rejected Edges:</strong> Edges that would create cycles</li>
+                            <li><strong>Components:</strong> Number of disjoint sets remaining</li>
+                            <li><strong>Total Weight:</strong> Sum of MST edge weights</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="procedure-step">
+                        <h4>Step 7: Verify Completion</h4>
+                        <p>When algorithm completes:</p>
+                        <ul>
+                            <li>Exactly V-1 edges in MST (if graph connected)</li>
+                            <li>All vertices connected by MST edges</li>
+                            <li>Remaining edges shown as rejected</li>
+                            <li>Total MST weight matches Prim's result</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Understanding Union-Find</h3>
+                    <ul>
+                        <li><strong>Initial State:</strong> Each vertex is its own parent</li>
+                        <li><strong>After Union:</strong> Sets merge, share common root</li>
+                        <li><strong>Path Compression:</strong> Nodes point to root after Find</li>
+                        <li><strong>Efficiency:</strong> Nearly constant time per operation</li>
+                    </ul>
+                    
+                    <h3>Observing the Forest</h3>
+                    <ul>
+                        <li>Start: V components (V separate trees)</li>
+                        <li>Each edge: Merges 2 components into 1</li>
+                        <li>End: 1 component (single spanning tree)</li>
+                        <li>Watch components count decrease: V → V-1 → V-2 → ... → 1</li>
+                    </ul>
+                    
+                    <h3>Experiment Ideas</h3>
+                    <ul>
+                        <li>Compare edge selection with Prim's algorithm</li>
+                        <li>Observe how forests merge into single tree</li>
+                        <li>Track rejected edges - they create cycles</li>
+                        <li>Verify same MST weight as Prim's</li>
+                        <li>Try on disconnected graph - creates MST forest</li>
+                    </ul>
+                `
             }
         };
 
         function selectAlgorithm(algo, event) {
             currentAlgorithm = algo;
+            
+            // Reset source and goal when changing algorithms
+            source = null;
+            goal = null;
             
             document.querySelectorAll('.algorithm-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -1680,6 +2162,130 @@ A*(start, goal, h)
                     correct: 1,
                     explanation: "A consistent heuristic ensures optimality and that no node is re-expanded."
                 }
+            ],
+            prim: [
+                {
+                    question: "What is the purpose of Prim's algorithm?",
+                    options: ["Find shortest paths", "Find Minimum Spanning Tree", "Topological sorting", "Find maximum flow"],
+                    correct: 1,
+                    explanation: "Prim's algorithm finds the Minimum Spanning Tree (MST) of a weighted undirected graph."
+                },
+                {
+                    question: "What data structure does Prim's algorithm use?",
+                    options: ["Stack", "Queue", "Priority Queue", "Hash Table"],
+                    correct: 2,
+                    explanation: "Prim's uses a priority queue (min-heap) to efficiently extract the minimum key vertex."
+                },
+                {
+                    question: "How many edges are in a spanning tree of V vertices?",
+                    options: ["V", "V-1", "V+1", "2V"],
+                    correct: 1,
+                    explanation: "A spanning tree of V vertices has exactly V-1 edges."
+                },
+                {
+                    question: "What does key[v] represent in Prim's algorithm?",
+                    options: ["Distance from source", "Minimum edge weight connecting v to MST", "Degree of v", "Discovery time"],
+                    correct: 1,
+                    explanation: "key[v] represents the minimum weight edge connecting vertex v to the current MST."
+                },
+                {
+                    question: "What is Prim's time complexity with binary heap?",
+                    options: ["O(V²)", "O(E log E)", "O((V+E) log V)", "O(V log V)"],
+                    correct: 2,
+                    explanation: "With binary heap, Prim's runs in O((V+E) log V) time."
+                },
+                {
+                    question: "Which algorithm is Prim's most similar to?",
+                    options: ["BFS", "DFS", "Dijkstra's", "Bellman-Ford"],
+                    correct: 2,
+                    explanation: "Prim's is structurally very similar to Dijkstra's algorithm, both using priority queues and greedy approach."
+                },
+                {
+                    question: "Can Prim's algorithm start from any vertex?",
+                    options: ["Yes, MST weight will be same", "No, must start from specific vertex", "Only from minimum degree vertex", "Only from maximum weight vertex"],
+                    correct: 0,
+                    explanation: "Prim's can start from any vertex and will produce an MST with the same total weight."
+                },
+                {
+                    question: "When is Prim's algorithm preferred over Kruskal's?",
+                    options: ["Sparse graphs", "Dense graphs", "Disconnected graphs", "Directed graphs"],
+                    correct: 1,
+                    explanation: "Prim's is more efficient for dense graphs where E is close to V²."
+                },
+                {
+                    question: "What happens when you remove an edge from MST?",
+                    options: ["Nothing changes", "Graph becomes disconnected", "Creates a cycle", "Reduces weight"],
+                    correct: 1,
+                    explanation: "Removing any edge from MST disconnects the graph into two components."
+                },
+                {
+                    question: "Is the MST unique?",
+                    options: ["Always unique", "Never unique", "Unique only if all edge weights are different", "Depends on algorithm used"],
+                    correct: 2,
+                    explanation: "MST is unique if all edge weights are distinct. With equal weights, multiple MSTs may exist."
+                }
+            ],
+            kruskal: [
+                {
+                    question: "What data structure is essential for Kruskal's algorithm?",
+                    options: ["Priority Queue", "Stack", "Union-Find", "Hash Table"],
+                    correct: 2,
+                    explanation: "Kruskal's uses Union-Find (Disjoint Set Union) to detect cycles efficiently."
+                },
+                {
+                    question: "What is the first step in Kruskal's algorithm?",
+                    options: ["Pick any vertex", "Create sets for vertices", "Sort all edges by weight", "Build adjacency list"],
+                    correct: 2,
+                    explanation: "Kruskal's first sorts all edges in non-decreasing order of weight."
+                },
+                {
+                    question: "When does Kruskal's algorithm skip an edge?",
+                    options: ["If weight is too high", "If it creates a cycle", "If it's the longest edge", "If endpoints are adjacent"],
+                    correct: 1,
+                    explanation: "An edge is skipped if both endpoints are already in the same set (would create cycle)."
+                },
+                {
+                    question: "What is the time complexity of Kruskal's algorithm?",
+                    options: ["O(V²)", "O(E log E)", "O(V log V)", "O(E + V)"],
+                    correct: 1,
+                    explanation: "Kruskal's complexity is O(E log E) dominated by sorting edges."
+                },
+                {
+                    question: "What does the FIND operation do in Union-Find?",
+                    options: ["Finds minimum edge", "Returns set representative", "Finds next vertex", "Finds cycle"],
+                    correct: 1,
+                    explanation: "FIND returns the representative (root) of the set containing the given element."
+                },
+                {
+                    question: "What does the UNION operation do?",
+                    options: ["Adds an edge", "Merges two sets", "Removes a vertex", "Sorts edges"],
+                    correct: 1,
+                    explanation: "UNION merges two disjoint sets into one set."
+                },
+                {
+                    question: "When is Kruskal's preferred over Prim's?",
+                    options: ["Dense graphs", "Sparse graphs", "Graphs with negative weights", "Directed graphs"],
+                    correct: 1,
+                    explanation: "Kruskal's is more efficient for sparse graphs where E is much less than V²."
+                },
+                {
+                    question: "Can Kruskal's algorithm work on disconnected graphs?",
+                    options: ["Yes, creates MST forest", "No, requires connected graph", "Only with modifications", "Yes, but gives wrong result"],
+                    correct: 0,
+                    explanation: "Kruskal's works on disconnected graphs and produces a Minimum Spanning Forest."
+                },
+                {
+                    question: "What is path compression in Union-Find?",
+                    options: ["Removing long paths", "Making nodes point to root during FIND", "Compressing edge weights", "Shortening MST"],
+                    correct: 1,
+                    explanation: "Path compression makes all nodes on the path point directly to the root during FIND."
+                },
+                {
+                    question: "How many components remain after Kruskal's finishes on connected graph?",
+                    options: ["0", "1", "V", "V-1"],
+                    correct: 1,
+                    explanation: "After Kruskal's on connected graph, all vertices are in one component (single tree)."
+                }
             ]
         };
 
@@ -1820,6 +2426,22 @@ A*(start, goal, h)
 
         function loadSimulation() {
             const contentArea = document.getElementById('contentArea');
+            
+            // Check if A* to add goal selection
+            const isAStar = currentAlgorithm === 'astar';
+            
+            let goalSelectHTML = '';
+            if (isAStar) {
+                goalSelectHTML = `
+                    <div class="control-group">
+                        <label>Select Goal</label>
+                        <select id="goalSelect" onchange="selectGoal()">
+                            <option value="">-- Select Goal --</option>
+                        </select>
+                    </div>
+                `;
+            }
+            
             contentArea.innerHTML = `
                 <div class="tab-content active">
                     <h2>${currentAlgorithm.toUpperCase()} Simulation</h2>
@@ -1835,6 +2457,7 @@ A*(start, goal, h)
                                     <option value="">-- Select --</option>
                                 </select>
                             </div>
+                            ${goalSelectHTML}
                             <div class="control-group">
                                 <label>Controls</label>
                                 <button onclick="nextStep()">Next Step</button>
@@ -1948,27 +2571,170 @@ A*(start, goal, h)
             const cy = canvas.height / 2;
             const r = Math.min(canvas.width, canvas.height) * 0.25;
             
-            const positions = [
-                {id: 'A', x: cx, y: cy - r},
-                {id: 'B', x: cx - r * 0.7, y: cy - r * 0.5},
-                {id: 'C', x: cx + r * 0.7, y: cy - r * 0.5},
-                {id: 'D', x: cx - r, y: cy + r * 0.3},
-                {id: 'E', x: cx, y: cy + r * 0.3},
-                {id: 'F', x: cx + r, y: cy + r * 0.3}
-            ];
-
-            positions.forEach(p => vertices.push(new Vertex(p.id, p.x, p.y)));
-
-            const connections = [
-                ['A','B'],['A','C'],['B','D'],['B','E'],
-                ['C','E'],['C','F'],['D','E'],['E','F']
-            ];
-
-            connections.forEach(c => {
-                const v1 = vertices.find(v => v.id === c[0]);
-                const v2 = vertices.find(v => v.id === c[1]);
-                if (v1 && v2) edges.push(new Edge(v1, v2));
-            });
+            // Different graph structures for different algorithms
+            if (currentAlgorithm === 'bfs') {
+                // BFS: Simple connected graph with clear levels
+                const positions = [
+                    {id: 'A', x: cx, y: cy - r},
+                    {id: 'B', x: cx - r * 0.9, y: cy - r * 0.3},
+                    {id: 'C', x: cx + r * 0.9, y: cy - r * 0.3},
+                    {id: 'D', x: cx - r * 1.2, y: cy + r * 0.4},
+                    {id: 'E', x: cx - r * 0.4, y: cy + r * 0.4},
+                    {id: 'F', x: cx + r * 0.4, y: cy + r * 0.4},
+                    {id: 'G', x: cx + r * 1.2, y: cy + r * 0.4},
+                    {id: 'H', x: cx, y: cy + r * 1.0}
+                ];
+                positions.forEach(p => vertices.push(new Vertex(p.id, p.x, p.y)));
+                
+                const connections = [
+                    ['A','B'],['A','C'],['B','D'],['B','E'],
+                    ['C','F'],['C','G'],['E','H'],['F','H']
+                ];
+                connections.forEach(c => {
+                    const v1 = vertices.find(v => v.id === c[0]);
+                    const v2 = vertices.find(v => v.id === c[1]);
+                    if (v1 && v2) edges.push(new Edge(v1, v2));
+                });
+                
+            } else if (currentAlgorithm === 'dfs') {
+                // DFS: Graph with clear depth structure
+                const positions = [
+                    {id: 'A', x: cx - r * 1.0, y: cy - r * 0.8},
+                    {id: 'B', x: cx, y: cy - r * 0.8},
+                    {id: 'C', x: cx + r * 1.0, y: cy - r * 0.8},
+                    {id: 'D', x: cx - r * 1.0, y: cy + r * 0.2},
+                    {id: 'E', x: cx, y: cy + r * 0.2},
+                    {id: 'F', x: cx + r * 1.0, y: cy + r * 0.2},
+                    {id: 'G', x: cx - r * 0.5, y: cy + r * 1.0},
+                    {id: 'H', x: cx + r * 0.5, y: cy + r * 1.0}
+                ];
+                positions.forEach(p => vertices.push(new Vertex(p.id, p.x, p.y)));
+                
+                const connections = [
+                    ['A','B'],['A','D'],['B','E'],['C','E'],
+                    ['C','F'],['D','G'],['E','G'],['E','H'],['F','H']
+                ];
+                connections.forEach(c => {
+                    const v1 = vertices.find(v => v.id === c[0]);
+                    const v2 = vertices.find(v => v.id === c[1]);
+                    if (v1 && v2) edges.push(new Edge(v1, v2));
+                });
+                
+            } else if (currentAlgorithm === 'dijkstra') {
+                // Dijkstra: Weighted graph with labeled vertices
+                const positions = [
+                    {id: 's', x: cx - r * 1.2, y: cy},
+                    {id: 't', x: cx - r * 0.4, y: cy - r * 0.8},
+                    {id: 'x', x: cx + r * 0.4, y: cy - r * 0.8},
+                    {id: 'y', x: cx - r * 0.4, y: cy + r * 0.8},
+                    {id: 'z', x: cx + r * 0.4, y: cy + r * 0.8}
+                ];
+                positions.forEach(p => vertices.push(new Vertex(p.id, p.x, p.y)));
+                
+                const connections = [
+                    ['s','t'],['s','y'],['t','x'],['t','y'],
+                    ['x','z'],['y','t'],['y','x'],['y','z'],['z','s'],['z','x']
+                ];
+                connections.forEach(c => {
+                    const v1 = vertices.find(v => v.id === c[0]);
+                    const v2 = vertices.find(v => v.id === c[1]);
+                    if (v1 && v2) edges.push(new Edge(v1, v2));
+                });
+                
+            } else if (currentAlgorithm === 'astar') {
+                // A*: Path-finding oriented graph
+                const positions = [
+                    {id: 'S', x: cx - r * 1.3, y: cy},
+                    {id: 'A', x: cx - r * 0.6, y: cy - r * 0.8},
+                    {id: 'B', x: cx - r * 0.6, y: cy + r * 0.8},
+                    {id: 'C', x: cx + r * 0.2, y: cy - r * 0.9},
+                    {id: 'D', x: cx + r * 0.2, y: cy},
+                    {id: 'E', x: cx + r * 0.2, y: cy + r * 0.9},
+                    {id: 'G', x: cx + r * 1.1, y: cy}
+                ];
+                positions.forEach(p => vertices.push(new Vertex(p.id, p.x, p.y)));
+                
+                const connections = [
+                    ['S','A'],['S','B'],['A','C'],['A','D'],
+                    ['B','D'],['B','E'],['C','G'],['D','G'],['E','G']
+                ];
+                connections.forEach(c => {
+                    const v1 = vertices.find(v => v.id === c[0]);
+                    const v2 = vertices.find(v => v.id === c[1]);
+                    if (v1 && v2) edges.push(new Edge(v1, v2));
+                });
+                
+            } else if (currentAlgorithm === 'prim') {
+                // Prim's: Weighted undirected graph for MST
+                const positions = [
+                    {id: 'A', x: cx - r * 1.0, y: cy - r * 0.7},
+                    {id: 'B', x: cx, y: cy - r * 1.0},
+                    {id: 'C', x: cx + r * 1.0, y: cy - r * 0.7},
+                    {id: 'D', x: cx - r * 1.2, y: cy + r * 0.3},
+                    {id: 'E', x: cx - r * 0.3, y: cy + r * 0.2},
+                    {id: 'F', x: cx + r * 0.3, y: cy + r * 0.2},
+                    {id: 'G', x: cx + r * 1.2, y: cy + r * 0.3},
+                    {id: 'H', x: cx, y: cy + r * 1.0}
+                ];
+                positions.forEach(p => vertices.push(new Vertex(p.id, p.x, p.y)));
+                
+                const connections = [
+                    ['A','B'],['A','D'],['A','E'],['B','C'],['B','E'],
+                    ['C','F'],['C','G'],['D','E'],['E','F'],['E','H'],
+                    ['F','G'],['F','H']
+                ];
+                connections.forEach(c => {
+                    const v1 = vertices.find(v => v.id === c[0]);
+                    const v2 = vertices.find(v => v.id === c[1]);
+                    if (v1 && v2) edges.push(new Edge(v1, v2));
+                });
+                
+            } else if (currentAlgorithm === 'kruskal') {
+                // Kruskal's: Complete-ish graph for MST
+                const positions = [
+                    {id: 'A', x: cx - r * 0.8, y: cy - r * 0.8},
+                    {id: 'B', x: cx + r * 0.8, y: cy - r * 0.8},
+                    {id: 'C', x: cx - r * 1.2, y: cy + r * 0.2},
+                    {id: 'D', x: cx - r * 0.4, y: cy + r * 0.2},
+                    {id: 'E', x: cx + r * 0.4, y: cy + r * 0.2},
+                    {id: 'F', x: cx + r * 1.2, y: cy + r * 0.2},
+                    {id: 'G', x: cx - r * 0.5, y: cy + r * 1.0},
+                    {id: 'H', x: cx + r * 0.5, y: cy + r * 1.0}
+                ];
+                positions.forEach(p => vertices.push(new Vertex(p.id, p.x, p.y)));
+                
+                const connections = [
+                    ['A','B'],['A','C'],['A','D'],['B','E'],['B','F'],
+                    ['C','D'],['D','E'],['D','G'],['E','F'],['E','H'],
+                    ['F','H'],['G','H']
+                ];
+                connections.forEach(c => {
+                    const v1 = vertices.find(v => v.id === c[0]);
+                    const v2 = vertices.find(v => v.id === c[1]);
+                    if (v1 && v2) edges.push(new Edge(v1, v2));
+                });
+            } else {
+                // Default graph
+                const positions = [
+                    {id: 'A', x: cx, y: cy - r},
+                    {id: 'B', x: cx - r * 0.7, y: cy - r * 0.5},
+                    {id: 'C', x: cx + r * 0.7, y: cy - r * 0.5},
+                    {id: 'D', x: cx - r, y: cy + r * 0.3},
+                    {id: 'E', x: cx, y: cy + r * 0.3},
+                    {id: 'F', x: cx + r, y: cy + r * 0.3}
+                ];
+                positions.forEach(p => vertices.push(new Vertex(p.id, p.x, p.y)));
+                
+                const connections = [
+                    ['A','B'],['A','C'],['B','D'],['B','E'],
+                    ['C','E'],['C','F'],['D','E'],['E','F']
+                ];
+                connections.forEach(c => {
+                    const v1 = vertices.find(v => v.id === c[0]);
+                    const v2 = vertices.find(v => v.id === c[1]);
+                    if (v1 && v2) edges.push(new Edge(v1, v2));
+                });
+            }
 
             buildAdjList();
             updateSourceSelect();
@@ -1999,6 +2765,15 @@ A*(start, goal, h)
                 sel.innerHTML += `<option value="${v.id}">Vertex ${v.id}</option>`;
             });
             sel.onchange = selectSource;
+            
+            // Also populate goal select if it exists (for A*)
+            const goalSel = document.getElementById('goalSelect');
+            if (goalSel) {
+                goalSel.innerHTML = '<option value="">-- Select Goal --</option>';
+                vertices.forEach(v => {
+                    goalSel.innerHTML += `<option value="${v.id}">Vertex ${v.id}</option>`;
+                });
+            }
         }
 
         function selectSource() {
@@ -2008,7 +2783,28 @@ A*(start, goal, h)
                 source = vertices.find(v => v.id === id);
                 resetSim();
                 draw();
-                updateInfo(`Source ${id} selected. Click Next Step to begin.`);
+                if (currentAlgorithm === 'astar' && !goal) {
+                    updateInfo(`Source ${id} selected. Now select a goal vertex.`);
+                } else if (currentAlgorithm === 'astar' && goal) {
+                    updateInfo(`Source ${id} and Goal ${goal.id} selected. Click Next Step to begin.`);
+                } else {
+                    updateInfo(`Source ${id} selected. Click Next Step to begin.`);
+                }
+            }
+        }
+
+        function selectGoal() {
+            const sel = document.getElementById('goalSelect');
+            const id = sel.value;
+            if (id) {
+                goal = vertices.find(v => v.id === id);
+                resetSim();
+                draw();
+                if (source) {
+                    updateInfo(`Source ${source.id} and Goal ${id} selected. Click Next Step to begin.`);
+                } else {
+                    updateInfo(`Goal ${id} selected. Now select a source vertex.`);
+                }
             }
         }
 
@@ -2016,6 +2812,10 @@ A*(start, goal, h)
             if (!initialized) {
                 if (!source) {
                     alert('Please select a source vertex first!');
+                    return;
+                }
+                if (currentAlgorithm === 'astar' && !goal) {
+                    alert('Please select a goal vertex for A* algorithm!');
                     return;
                 }
                 initBFS();
@@ -2135,7 +2935,18 @@ A*(start, goal, h)
 
             updateDisplay();
             draw();
-            updateInfo('Reset. Select source and click Next Step to begin.');
+            
+            if (currentAlgorithm === 'astar' && source && goal) {
+                updateInfo(`Reset. Source: ${source.id}, Goal: ${goal.id}. Click Next Step to begin.`);
+            } else if (currentAlgorithm === 'astar' && source && !goal) {
+                updateInfo('Reset. Source selected. Now select a goal vertex.');
+            } else if (currentAlgorithm === 'astar' && !source && goal) {
+                updateInfo('Reset. Goal selected. Now select a source vertex.');
+            } else if (source) {
+                updateInfo(`Reset. Source ${source.id} selected. Click Next Step to begin.`);
+            } else {
+                updateInfo('Reset. Select source vertex to begin.');
+            }
             updateButtons();
         }
 
@@ -2157,7 +2968,12 @@ A*(start, goal, h)
 
             saveState();
             updateDisplay();
-            updateInfo('BFS initialized. Click Next Step to continue.');
+            
+            if (currentAlgorithm === 'astar' && goal) {
+                updateInfo(`A* initialized. Source: ${source.id}, Goal: ${goal.id}. Click Next Step to continue.`);
+            } else {
+                updateInfo(`${currentAlgorithm.toUpperCase()} initialized. Click Next Step to continue.`);
+            }
         }
 
         function updateDisplay() {
